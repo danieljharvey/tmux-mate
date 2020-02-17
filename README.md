@@ -23,3 +23,8 @@ Look in `test/samples` for ideas.
 ### Requirements
 
 You will need a recent version of `tmux` installed. I tested on version 3, but I'm pretty sure the commands I am using are pretty basic so should work backwards too.
+
+### Prior art
+
+Very much inspired by [Tmuxinator](https://github.com/tmuxinator/tmuxinator), a
+great project that doesn't *quite* do what I needed.
