@@ -1,5 +1,5 @@
-{ title = "foo"
-, panes =
+{ sessionTitle = "foo"
+, sessionPanes =
   [ { paneCommand = "yes 'Pane 1'", paneTitle = "One" }
   , { paneCommand = "yes 'Pane 2'", paneTitle = "Two" }
   ]

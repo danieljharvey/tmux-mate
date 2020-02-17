@@ -20,13 +20,14 @@ askRunning seshName = do
 readTmuxProcess :: IO String
 readTmuxProcess =
   readCreateProcess
-    (shell "tmux list-pane -as -F '#{session_name}:#{pane_index}:#{pane_start_command}'")
+    (shell "tmux list-pane -as -F '#{session_name}:#{window_name}:#{pane_index}:#{pane_start_command}'")
     ""
 
 -- stop unrequired
 
-removeQuotes :: String -> String
-removeQuotes = (filter ((/=) '\''))
+removeQuotes :: PaneCommand -> PaneCommand
+removeQuotes (PaneCommand s) =
+  PaneCommand $ (filter ((/=) '\'')) s
 
 wordsWhen :: (Char -> Bool) -> String -> [String]
 wordsWhen p s = case dropWhile p s of
@@ -42,13 +43,18 @@ myLookup i (_ : xs) = myLookup (i - 1) xs
 
 parseSingle :: String -> Maybe Running
 parseSingle str =
-  Running <$> seshName <*> cmd <*> index
+  Running
+    <$> seshName
+      <*> windowName
+      <*> cmd
+      <*> index
   where
-    seshName = myLookup 0 subStrs
-    index = myLookup 1 subStrs >>= readMaybe
-    cmd = case intercalate ":" (drop 2 subStrs) of
+    seshName = SessionName <$> myLookup 0 subStrs
+    windowName = WindowName <$> myLookup 1 subStrs
+    index = myLookup 2 subStrs >>= readMaybe
+    cmd = case intercalate ":" (drop 3 subStrs) of
       "" -> Nothing
-      a -> Just a
+      a -> Just (PaneCommand a)
     subStrs = wordsWhen (== ':') str
 
 parseRunning :: SessionName -> String -> [Running]

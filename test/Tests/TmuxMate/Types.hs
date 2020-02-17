@@ -29,14 +29,20 @@ instance (Generic a, Arbitrary a) => Arbitrary (GenericArb a) where
 instance Arbitrary Session where
   arbitrary = genericArbitrary
 
-instance Arbitrary SessionName where
+instance Arbitrary Window where
   arbitrary = genericArbitrary
+
+instance Arbitrary WindowName where
+  arbitrary = oneof [pure (WindowName "window-name")]
+
+instance Arbitrary SessionName where
+  arbitrary = oneof [pure (SessionName "session-name")]
 
 instance Arbitrary Pane where
   arbitrary = genericArbitrary
 
 instance Arbitrary PaneTitle where
-  arbitrary = oneof [pure (PaneTitle "title")]
+  arbitrary = oneof [pure (PaneTitle "pane-title")]
 
 instance Arbitrary PaneCommand where
-  arbitrary = oneof [pure (PaneCommand "command")]
+  arbitrary = oneof [pure (PaneCommand "pane-command")]

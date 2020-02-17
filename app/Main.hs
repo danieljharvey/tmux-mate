@@ -1,7 +1,7 @@
 module Main where
 
-import Lib
 import System.Environment
+import TmuxMate
 
 main :: IO ()
 main = do
