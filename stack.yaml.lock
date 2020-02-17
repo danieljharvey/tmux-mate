@@ -3,10 +3,24 @@
 # For more information, please see the documentation at:
 #   https://docs.haskellstack.org/en/stable/lock_files
 
-packages: []
+packages:
+- completed:
+    hackage: dhall-1.29.0@sha256:48e9c106ac611cc14f2f68d2a2df6358bfc371654a2b981ac3d7d73dccdc7ae2,32755
+    pantry-tree:
+      size: 244291
+      sha256: ca99d89b077c2c536179f3b1751dfd5da70cb6eb3e052e408f0841c1c9582a01
+  original:
+    hackage: dhall-1.29.0
+- completed:
+    hackage: prettyprinter-1.6.1@sha256:11876ec94a79048e1d2942a99bfaa6f2be5222eafeedac6a9545673a79465009,5459
+    pantry-tree:
+      size: 2194
+      sha256: b8ddc48e267da0bc8da3082929b478df80c3c986865394f93e7bc7631c0031cf
+  original:
+    hackage: prettyprinter-1.6.1@sha256:11876ec94a79048e1d2942a99bfaa6f2be5222eafeedac6a9545673a79465009,5459
 snapshots:
 - completed:
-    size: 488352
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/nightly/2020/2/15.yaml
-    sha256: 3c4888f2d80a59256a11e4192fa2ed8f60ee9c23723d46cb5a2d83e40550fc63
-  original: nightly-2020-02-15
+    size: 524996
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/14/27.yaml
+    sha256: 7ea31a280c56bf36ff591a7397cc384d0dff622e7f9e4225b47d8980f019a0f0
+  original: lts-14.27
