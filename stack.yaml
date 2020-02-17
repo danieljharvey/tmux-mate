@@ -17,7 +17,7 @@
 #
 # resolver: ./custom-snapshot.yaml
 # resolver: https://example.com/snapshots/2018-01-01.yaml
-resolver: nightly-2020-02-15
+resolver: lts-14.27 # ghc 8.6.5
 
 # User packages to be built.
 # Various formats can be used as shown in the example below.
@@ -39,7 +39,10 @@ packages:
 # - git: https://github.com/commercialhaskell/stack.git
 #   commit: e7b331f14bcffb8367cd58fbfc8b40ec7642100a
 #
-# extra-deps: []
+extra-deps:
+  - dhall-1.29.0
+  # newer dhall requires...
+  - prettyprinter-1.6.1@sha256:11876ec94a79048e1d2942a99bfaa6f2be5222eafeedac6a9545673a79465009,5459
 
 # Override default flag values for local packages and extra-deps
 # flags: {}
@@ -64,3 +67,6 @@ packages:
 #
 # Allow a newer minor version of GHC than the snapshot specifies
 # compiler-check: newer-minor
+nix:
+  enable: false # pass `--nix` to `stack build` if you need
+  shell-file: default.nix
