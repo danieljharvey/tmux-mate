@@ -1,5 +1,6 @@
 { title = "foo", 
-  panes =  [  {
+  panes =  [
+      {
     paneCommand = "yes 'Pane 1'", paneTitle = "One"
   },
    {
