@@ -18,7 +18,9 @@ createActualCommand (CreateAdminPane (SessionName seshName)) =
 createActualCommand (KillAdminPane seshName) =
   pure $ sendKeys seshName "exit"
 createActualCommand (CreatePane seshName winName cmd) =
-  pure $ sendKeys seshName ("tmux split-window -h -d " <> (getCommand cmd))
+  [ Command $ "tmux select-window -t '" <> (getWindowName winName) <> "'",
+    sendKeys seshName ("tmux split-window -h -d " <> (getCommand cmd))
+  ]
 createActualCommand (KillPane seshName index) =
   pure $ sendKeys seshName ("tmux kill-pane -t " <> show index)
 createActualCommand (AttachToSession (SessionName seshName)) =
@@ -30,4 +32,4 @@ createActualCommand (KillSession (SessionName seshName)) =
 createActualCommand (NewSession (SessionName seshName)) =
   pure $ Command $ "tmux new-session -d -s " <> seshName
 createActualCommand (CreateWindow (SessionName seshName) (WindowName winName)) =
-  pure $ Command $ "tmux new-window -n '" <> seshName <> "'"
+  pure $ Command $ "tmux new-window -n '" <> winName <> "'"

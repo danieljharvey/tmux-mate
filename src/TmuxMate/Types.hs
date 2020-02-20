@@ -8,6 +8,19 @@ module TmuxMate.Types where
 import Dhall (Decoder, FromDhall, ToDhall, autoWith)
 import GHC.Generics
 
+data InTmuxSession
+  = InTmuxSession SessionName
+  | NotInTmuxSession
+  deriving (Eq, Ord, Show)
+
+data TmuxState
+  = TmuxState
+      { inSession :: InTmuxSession,
+        running :: [Running],
+        sessions :: [SessionName]
+      }
+  deriving (Eq, Ord, Show)
+
 data IsNewSession
   = IsNewSession
   | IsOldSession

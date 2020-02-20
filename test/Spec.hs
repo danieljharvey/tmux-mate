@@ -10,6 +10,7 @@ import TmuxMate
 import TmuxMate.Running
 import TmuxMate.Types
   ( Command (..),
+    InTmuxSession (..),
     Pane (..),
     PaneCommand (..),
     Running (..),
@@ -24,15 +25,23 @@ main = hspec $ do
   describe "createSession" $ do
     it "Creates a session if needed" $ do
       createSession
+        ( InTmuxSession
+            (SessionName "horses")
+        )
         (SessionName "horses")
         []
-        `shouldBe` Just
-          (NewSession (SessionName "horses"))
+        `shouldBe` [ NewSession (SessionName "horses"),
+                     SwitchToSession (SessionName "horses")
+                   ]
+    it "Creates a session but does not switch to it if we're outside tmux" $ do
+      createSession NotInTmuxSession (SessionName "horses") []
+        `shouldBe` [NewSession (SessionName "horses")]
     it "Does nothing if one already exists" $ do
       createSession
+        (InTmuxSession (SessionName "horses"))
         (SessionName "horses")
-        [Running (SessionName "horses") undefined undefined 0]
-        `shouldBe` Nothing
+        [SessionName "horses"]
+        `shouldBe` [SwitchToSession (SessionName "horses")]
   describe "createWindow" $ do
     it "Creates a window if needed" $ do
       createWindow
@@ -126,6 +135,13 @@ main = hspec $ do
           )
         ]
         `shouldBe` [KillWindow (SessionName "horses") (WindowName "window2")]
+  describe "attachToSession" $ do
+    it "Attaches to new session if just created" $ do
+      attachToSession NotInTmuxSession (SessionName "new-session") []
+        `shouldBe` [AttachToSession (SessionName "new-session")]
+    it "Switches back to old session if we're already in tmux" $ do
+      attachToSession (InTmuxSession (SessionName "old-session")) (SessionName "new-session") []
+        `shouldBe` [SwitchToSession (SessionName "old-session")]
   describe "ParseRunning" $ do
     it "Rejects nonsense" $ do
       parseSingle "sdfdsf" `shouldBe` Nothing
