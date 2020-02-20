@@ -5,6 +5,7 @@
 
 module TmuxMate.Types where
 
+import Data.List.NonEmpty
 import Dhall (Decoder, FromDhall, ToDhall, autoWith)
 import GHC.Generics
 
@@ -93,3 +94,34 @@ data Running
         index :: Int
       }
   deriving (Eq, Ord, Show)
+
+data ValidationError
+  = EmptySessionName
+  | NoWindows
+  | EmptyWindowName
+  | WindowWithNoPanes VWindowName
+  deriving (Eq, Ord, Show)
+
+newtype VSessionName
+  = VSessionName {getVSessionName :: NonEmpty Char}
+  deriving stock (Eq, Ord, Generic)
+  deriving newtype (Show)
+
+data ValidatedSession
+  = ValidatedSession
+      { vSessionTitle :: VSessionName,
+        vSessionWindows :: NonEmpty Window
+      }
+  deriving (Eq, Ord, Show, Generic)
+
+newtype VWindowName
+  = VWindowName {getVWindowName :: NonEmpty Char}
+  deriving stock (Eq, Ord, Generic)
+  deriving newtype (Show)
+
+data VWindow
+  = VWindow
+      { vWindowTitle :: VWindowName,
+        vWindowPanes :: [Pane]
+      }
+  deriving (Eq, Ord, Show, Generic)
