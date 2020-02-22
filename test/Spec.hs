@@ -52,9 +52,10 @@ main = hspec $ do
                        (PaneCommand "yes Pane 1")
                        1
                    ]
-  describe "Dhall" $ do
-    it "Round trips Dhall encoding" $ do
-      property dhallSessionRoundtrip
+
+{-describe "Dhall" $ do
+  it "Round trips Dhall encoding" $ do
+    property dhallSessionRoundtrip -}
 
 dhallSessionRoundtrip :: Property
 dhallSessionRoundtrip =

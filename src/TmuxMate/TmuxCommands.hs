@@ -39,7 +39,7 @@ getTmuxCommands sesh tmuxState =
    in {-case runningInTmux of
         NotInTmuxSession -> NE.tail (vSessionWindows sesh) -- first one is dealt with in invocation of session
         InTmuxSession _ -> NE.toList (vSessionWindows sesh)-}
-      (createSession runningInTmux sesh)
+      (createSession runningInTmux sesh runningSessions)
         <> ( concatMap
                (createWindow sTitle runningPanes)
                sWindows
@@ -50,15 +50,18 @@ getTmuxCommands sesh tmuxState =
         <> [AttachToSession sTitle]
 
 -- create a new session if required
-createSession :: InTmuxSession -> ValidatedSession -> [TmuxCommand]
-createSession inTmux session =
+createSession :: InTmuxSession -> ValidatedSession -> [VSessionName] -> [TmuxCommand]
+createSession inTmux session _runningSesh =
   let seshName = vSessionTitle session
    in case inTmux of
         InTmuxSession currentSesh -> [] -- AttachToSession currentSesh]
         NotInTmuxSession ->
-          [ NewSession
-              seshName
-          ]
+          if sessionExists seshName _runningSesh
+            then [AttachToSession seshName]
+            else
+              [ NewSession
+                  seshName
+              ]
 
 sessionExists :: VSessionName -> [VSessionName] -> Bool
 sessionExists = elem
