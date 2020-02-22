@@ -79,7 +79,7 @@ spec = do
         []
         ( VWindow
             (VWindowName (NE.fromList "window"))
-            $ NE.fromList [Pane (PaneCommand "go") undefined]
+            $ NE.fromList [Pane (PaneCommand "go")]
         )
         `shouldBe` [ CreatePane
                        (VSessionName $ NE.fromList "horses")
@@ -97,7 +97,7 @@ spec = do
         ]
         ( VWindow
             (VWindowName (NE.fromList "window"))
-            $ NE.fromList [Pane (PaneCommand "go") undefined]
+            $ NE.fromList [Pane (PaneCommand "go")]
         )
         `shouldBe` [ CreatePane
                        (VSessionName $ NE.fromList "horses")
@@ -115,7 +115,7 @@ spec = do
         ]
         ( VWindow
             (VWindowName (NE.fromList "window"))
-            $ NE.fromList [Pane (PaneCommand "go") undefined]
+            $ NE.fromList [Pane (PaneCommand "go")]
         )
         `shouldBe` []
   describe "removeWindowPanes" $ do
@@ -126,7 +126,7 @@ spec = do
         ( NE.fromList
             [ ( VWindow
                   (VWindowName (NE.fromList "window"))
-                  $ NE.fromList [Pane (PaneCommand "go") undefined]
+                  $ NE.fromList [Pane (PaneCommand "go")]
               )
             ]
         )
@@ -143,7 +143,7 @@ spec = do
         ( NE.fromList
             [ ( VWindow
                   (VWindowName (NE.fromList "window"))
-                  $ NE.fromList [Pane (PaneCommand "go") undefined]
+                  $ NE.fromList [Pane (PaneCommand "go")]
               )
             ]
         )
@@ -160,7 +160,7 @@ spec = do
         ( NE.fromList
             [ ( VWindow
                   (VWindowName (NE.fromList "window"))
-                  $ NE.fromList [Pane (PaneCommand "whoa-no") undefined]
+                  $ NE.fromList [Pane (PaneCommand "whoa-no")]
               )
             ]
         )
@@ -173,7 +173,7 @@ spec = do
         ( NE.fromList
             [ ( VWindow
                   (VWindowName (NE.fromList "window"))
-                  $ NE.fromList [Pane (PaneCommand "go") undefined]
+                  $ NE.fromList [Pane (PaneCommand "go")]
               )
             ]
         )
@@ -191,7 +191,7 @@ spec = do
             [ ( VWindow
                   (VWindowName (NE.fromList "window"))
                   $ NE.fromList
-                    [Pane (PaneCommand "go") undefined]
+                    [Pane (PaneCommand "go")]
               )
             ]
         )

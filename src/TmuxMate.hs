@@ -43,19 +43,19 @@ testSession =
         [ Window
             { windowTitle = WindowName "first-window",
               windowPanes =
-                [ Pane (PaneCommand "yes 'Pane 1'") (PaneTitle "One"),
-                  Pane (PaneCommand "yes 'Pane 2'") (PaneTitle "Two"),
-                  Pane (PaneCommand "yes 'Pane 3'") (PaneTitle "Three"),
-                  Pane (PaneCommand "yes 'Pane 4'") (PaneTitle "Four")
+                [ Pane (PaneCommand "yes 'Pane 1'"),
+                  Pane (PaneCommand "yes 'Pane 2'"),
+                  Pane (PaneCommand "yes 'Pane 3'"),
+                  Pane (PaneCommand "yes 'Pane 4'")
                 ]
             },
           Window
             { windowTitle = WindowName "second-window",
               windowPanes =
-                [ Pane (PaneCommand "yes 'Second Window - Pane 1'") (PaneTitle "2One"),
-                  Pane (PaneCommand "yes 'Second Window - Pane 2'") (PaneTitle "2Two"),
-                  Pane (PaneCommand "yes 'Second Window - Pane 3'") (PaneTitle "2Three"),
-                  Pane (PaneCommand "yes 'Second Window - Pane 4'") (PaneTitle "2Four")
+                [ Pane (PaneCommand "yes 'Second Window - Pane 1'"),
+                  Pane (PaneCommand "yes 'Second Window - Pane 2'"),
+                  Pane (PaneCommand "yes 'Second Window - Pane 3'"),
+                  Pane (PaneCommand "yes 'Second Window - Pane 4'")
                 ]
             }
         ]

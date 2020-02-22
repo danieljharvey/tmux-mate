@@ -1,6 +1,4 @@
 { sessionTitle = "foo"
 , sessionPanes =
-  [ { paneCommand = "yes 'Pane 1'", paneTitle = "One" }
-  , { paneCommand = "yes 'Pane 2'", paneTitle = "Two" }
-  ]
+  [ { paneCommand = "yes 'Pane 1'" }, { paneCommand = "yes 'Pane 2'" } ]
 }

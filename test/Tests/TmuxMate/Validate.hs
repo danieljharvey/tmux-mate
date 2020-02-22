@@ -21,7 +21,7 @@ spec = do
               sessionWindows =
                 [ Window
                     { windowTitle = WindowName "OK",
-                      windowPanes = [Pane {paneCommand = PaneCommand "", paneTitle = PaneTitle ""}]
+                      windowPanes = [Pane {paneCommand = PaneCommand ""}]
                     }
                 ]
             }
@@ -40,7 +40,7 @@ spec = do
               sessionWindows =
                 [ Window
                     { windowTitle = WindowName "",
-                      windowPanes = [Pane {paneCommand = PaneCommand "", paneTitle = PaneTitle ""}]
+                      windowPanes = [Pane {paneCommand = PaneCommand ""}]
                     }
                 ]
             }

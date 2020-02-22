@@ -2,7 +2,5 @@
 let sample1 = ./Sample1.dhall
 
 in  { sessionTitle = sample1.sessionTitle
-    , sessionPanes =
-          sample1.sessionPanes
-        # [ { paneCommand = "yes 'Pane 3'", paneTitle = "Three" } ]
+    , sessionPanes = sample1.sessionPanes # [ { paneCommand = "yes 'Pane 3'" } ]
     }

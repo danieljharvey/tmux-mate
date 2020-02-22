@@ -41,8 +41,5 @@ instance Arbitrary SessionName where
 instance Arbitrary Pane where
   arbitrary = genericArbitrary
 
-instance Arbitrary PaneTitle where
-  arbitrary = oneof [pure (PaneTitle "pane-title")]
-
 instance Arbitrary PaneCommand where
   arbitrary = oneof [pure (PaneCommand "pane-command")]

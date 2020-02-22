@@ -45,15 +45,9 @@ newtype PaneCommand
   deriving stock (Eq, Ord, Generic)
   deriving newtype (Show, ToDhall, FromDhall)
 
-newtype PaneTitle
-  = PaneTitle {getPaneTitle :: String}
-  deriving stock (Eq, Ord, Generic)
-  deriving newtype (Show, ToDhall, FromDhall)
-
 data Pane
   = Pane
-      { paneCommand :: PaneCommand,
-        paneTitle :: PaneTitle
+      { paneCommand :: PaneCommand
       }
   deriving (Eq, Ord, Show, Generic, FromDhall, ToDhall)
 
