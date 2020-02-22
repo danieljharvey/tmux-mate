@@ -18,10 +18,12 @@ parseSessionName (SessionName str) =
     Just neStr -> Right (VSessionName neStr)
     _ -> Left EmptySessionName
 
-parseSessionWindows :: [Window] -> Either ValidationError (NonEmpty Window)
-parseSessionWindows as =
-  case nonEmpty as of
+parseSessionWindows :: [Window] -> Either ValidationError (NonEmpty VWindow)
+parseSessionWindows as = do
+  vWindows <- sequence (parseWindow <$> as)
+  case nonEmpty vWindows of
     Just as' -> Right as'
+    _ -> Left NoWindows
 
 parseWindowName :: WindowName -> Either ValidationError VWindowName
 parseWindowName (WindowName str) =
@@ -29,10 +31,17 @@ parseWindowName (WindowName str) =
     Just neStr -> Right (VWindowName neStr)
     _ -> Left EmptyWindowName
 
+parseWindowPanes :: VWindowName -> [Pane] -> Either ValidationError (NonEmpty Pane)
+parseWindowPanes wName as =
+  case nonEmpty as of
+    Just as' -> Right as'
+    _ -> Left $ WindowWithNoPanes wName
+
 parseWindow :: Window -> Either ValidationError VWindow
 parseWindow window = do
   name <- parseWindowName (windowTitle window)
+  panes <- parseWindowPanes name (windowPanes window)
   pure $ VWindow
     { vWindowTitle = name,
-      vWindowPanes = windowPanes window
+      vWindowPanes = panes
     }

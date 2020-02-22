@@ -110,7 +110,7 @@ newtype VSessionName
 data ValidatedSession
   = ValidatedSession
       { vSessionTitle :: VSessionName,
-        vSessionWindows :: NonEmpty Window
+        vSessionWindows :: NonEmpty VWindow
       }
   deriving (Eq, Ord, Show, Generic)
 
@@ -122,6 +122,6 @@ newtype VWindowName
 data VWindow
   = VWindow
       { vWindowTitle :: VWindowName,
-        vWindowPanes :: [Pane]
+        vWindowPanes :: NonEmpty Pane
       }
   deriving (Eq, Ord, Show, Generic)
