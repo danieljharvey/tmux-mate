@@ -1,5 +1,6 @@
 module Tests.TmuxMate.Validate where
 
+import qualified Data.List.NonEmpty as NE
 import Dhall
 import Dhall.Core (pretty)
 import Test.Hspec
@@ -9,19 +10,6 @@ import Tests.TmuxMate.Types (Session)
 import TmuxMate
 import TmuxMate.Running
 import TmuxMate.Types
-  ( Command (..),
-    InTmuxSession (..),
-    Pane (..),
-    PaneCommand (..),
-    PaneTitle (..),
-    Running (..),
-    Session (..),
-    SessionName (..),
-    TmuxCommand (..),
-    ValidationError (..),
-    Window (..),
-    WindowName (..),
-  )
 import TmuxMate.Validate
 
 spec :: Spec
@@ -30,7 +18,12 @@ spec = do
     it "Fails on an empty name" $ do
       let sesh = Session
             { sessionTitle = SessionName "",
-              sessionWindows = []
+              sessionWindows =
+                [ Window
+                    { windowTitle = WindowName "OK",
+                      windowPanes = [Pane {paneCommand = PaneCommand "", paneTitle = PaneTitle ""}]
+                    }
+                ]
             }
       parseSession sesh
         `shouldBe` Left EmptySessionName
@@ -53,10 +46,10 @@ spec = do
             }
       parseSession sesh
         `shouldBe` Left EmptyWindowName
-    it "Fails with no windows" $ do
+    it "Fails with no window panes" $ do
       let sesh = Session
             { sessionTitle = SessionName "Whoa",
-              sessionWindows = [Window {windowTitle = WindowName "", windowPanes = []}]
+              sessionWindows = [Window {windowTitle = WindowName "empty-boy", windowPanes = []}]
             }
       parseSession sesh
-        `shouldBe` Left NoWindows
+        `shouldBe` Left (WindowWithNoPanes (VWindowName $ NE.fromList "empty-boy"))

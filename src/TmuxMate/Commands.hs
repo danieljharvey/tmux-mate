@@ -1,11 +1,12 @@
 module TmuxMate.Commands where
 
+import qualified Data.List.NonEmpty as NE
 import TmuxMate.Types
 
-sendKeys :: SessionName -> String -> Command
-sendKeys (SessionName name) str =
+sendKeys :: VSessionName -> String -> Command
+sendKeys (VSessionName name) str =
   Command $
-    "tmux send-keys -t " <> name <> " \""
+    "tmux send-keys -t " <> (NE.toList name) <> " \""
       <> str
       <> "\" ENTER"
 
@@ -13,23 +14,23 @@ sendKeys (SessionName name) str =
 
 -- turns our DSL into actual tmux commands
 createActualCommand :: TmuxCommand -> [Command]
-createActualCommand (CreateAdminPane (SessionName seshName)) =
-  pure $ Command $ "tmux split-window -v -t " <> seshName
+createActualCommand (CreateAdminPane (VSessionName seshName)) =
+  pure $ Command $ "tmux split-window -v -t " <> NE.toList seshName
 createActualCommand (KillAdminPane seshName) =
   pure $ sendKeys seshName "exit"
 createActualCommand (CreatePane seshName winName cmd) =
-  [ Command $ "tmux select-window -t '" <> (getWindowName winName) <> "'",
+  [ Command $ "tmux select-window -t '" <> NE.toList (getVWindowName winName) <> "'",
     sendKeys seshName ("tmux split-window -h -d " <> (getCommand cmd))
   ]
 createActualCommand (KillPane seshName index) =
   pure $ sendKeys seshName ("tmux kill-pane -t " <> show index)
-createActualCommand (AttachToSession (SessionName seshName)) =
-  pure $ Command $ "tmux attach-session -t " <> seshName
-createActualCommand (SwitchToSession (SessionName seshName)) =
-  pure $ Command $ "tmux switch -t " <> seshName
-createActualCommand (KillSession (SessionName seshName)) =
-  pure $ Command $ "tmux kill-session -t " <> seshName
-createActualCommand (NewSession (SessionName seshName)) =
-  pure $ Command $ "tmux new-session -d -s " <> seshName
-createActualCommand (CreateWindow (SessionName seshName) (WindowName winName)) =
-  pure $ Command $ "tmux new-window -n '" <> winName <> "'"
+createActualCommand (AttachToSession (VSessionName seshName)) =
+  pure $ Command $ "tmux attach-session -t " <> NE.toList seshName
+createActualCommand (SwitchToSession (VSessionName seshName)) =
+  pure $ Command $ "tmux switch -t " <> NE.toList seshName
+createActualCommand (KillSession (VSessionName seshName)) =
+  pure $ Command $ "tmux kill-session -t " <> NE.toList seshName
+createActualCommand (NewSession (VSessionName seshName)) =
+  pure $ Command $ "tmux new-session -d -s " <> NE.toList seshName
+createActualCommand (CreateWindow (VSessionName seshName) (VWindowName winName)) =
+  pure $ Command $ "tmux new-window -n '" <> NE.toList winName <> "'"

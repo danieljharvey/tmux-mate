@@ -9,18 +9,19 @@ import System.Environment
 import System.Process
 import Text.Read
 import TmuxMate.Types
+import TmuxMate.Validate
 
-buildTmuxState :: SessionName -> IO TmuxState
-buildTmuxState seshName = do
+buildTmuxState :: IO TmuxState
+buildTmuxState = do
   sessions <- askRunningSessions
-  running <- askRunning seshName
+  running <- askRunning
   inTmux <- askIfWeAreInTmux
   pure $ TmuxState inTmux running sessions
 
-askTmuxState :: SessionName -> IO TmuxState
-askTmuxState seshName =
+askTmuxState :: IO TmuxState
+askTmuxState =
   catch
-    (buildTmuxState seshName)
+    (buildTmuxState)
     (\(e :: IOError) -> pure def)
   where
     def = TmuxState
@@ -31,10 +32,10 @@ askTmuxState seshName =
 
 -- "foo:yes Pane 2\nfoo:yes Pane 1\n"
 
-askRunning :: SessionName -> IO [Running]
-askRunning seshName = do
+askRunning :: IO [Running]
+askRunning = do
   str <- catch readTmuxProcess (\(e :: IOError) -> pure "")
-  pure $ parseRunning seshName str
+  pure $ parseRunning str
 
 -- ask Tmux what's cooking
 readTmuxProcess :: IO String
@@ -44,10 +45,15 @@ readTmuxProcess =
     ""
 
 -- "foo/npoo/n0/n"
-askRunningSessions :: IO [SessionName]
+askRunningSessions :: IO [VSessionName]
 askRunningSessions = do
   str <- catch readTmuxSessions (\(e :: IOError) -> pure "")
-  pure $ SessionName <$> lines str
+  pure $ catMaybes $
+    ( hush
+        . parseSessionName
+        . SessionName
+    )
+      <$> lines str
 
 readTmuxSessions :: IO String
 readTmuxSessions =
@@ -64,7 +70,10 @@ askIfWeAreInTmux = do
   case tmuxEnv of
     Nothing -> pure NotInTmuxSession
     Just "" -> pure NotInTmuxSession
-    Just a -> pure $ InTmuxSession seshName
+    Just a -> do
+      case (parseSessionName seshName) of
+        Right seshName' -> pure $ InTmuxSession seshName'
+        _ -> pure NotInTmuxSession
 
 askCurrentSessionName :: IO SessionName
 askCurrentSessionName =
@@ -99,14 +108,24 @@ parseSingle str =
       <*> cmd
       <*> index
   where
-    seshName = SessionName <$> myLookup 0 subStrs
-    windowName = WindowName <$> myLookup 1 subStrs
-    index = myLookup 2 subStrs >>= readMaybe
+    seshName =
+      (SessionName <$> myLookup 0 subStrs)
+        >>= (hush . parseSessionName)
+    windowName =
+      (WindowName <$> myLookup 1 subStrs)
+        >>= (hush . parseWindowName)
+    index =
+      myLookup 2 subStrs
+        >>= readMaybe
     cmd = case intercalate ":" (drop 3 subStrs) of
       "" -> Nothing
       a -> Just (PaneCommand a)
     subStrs = wordsWhen (== ':') str
 
-parseRunning :: SessionName -> String -> [Running]
-parseRunning (SessionName seshName) as =
+parseRunning :: String -> [Running]
+parseRunning as =
   catMaybes (parseSingle <$> (lines as))
+
+hush :: Either e a -> Maybe a
+hush (Left _) = Nothing
+hush (Right a) = Just a

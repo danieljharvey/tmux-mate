@@ -28,6 +28,7 @@ library:
     - process
     - text
     - dhall
+    - validation
 
 executables:
   tmux-mate-exe:

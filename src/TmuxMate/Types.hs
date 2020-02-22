@@ -10,7 +10,7 @@ import Dhall (Decoder, FromDhall, ToDhall, autoWith)
 import GHC.Generics
 
 data InTmuxSession
-  = InTmuxSession SessionName
+  = InTmuxSession VSessionName
   | NotInTmuxSession
   deriving (Eq, Ord, Show)
 
@@ -18,7 +18,7 @@ data TmuxState
   = TmuxState
       { inSession :: InTmuxSession,
         running :: [Running],
-        sessions :: [SessionName]
+        sessions :: [VSessionName]
       }
   deriving (Eq, Ord, Show)
 
@@ -68,17 +68,17 @@ newtype WindowName
   deriving newtype (Show, FromDhall, ToDhall)
 
 data TmuxCommand
-  = CreateAdminPane SessionName
-  | KillAdminPane SessionName
-  | CreatePane SessionName WindowName Command
-  | KillPane SessionName Int
-  | CreateWindow SessionName WindowName
-  | KillWindow SessionName WindowName
-  | AttachToSession SessionName
-  | SwitchToSession SessionName
-  | KillSession SessionName
-  | NewSession SessionName
-  | SendKeys SessionName String
+  = CreateAdminPane VSessionName
+  | KillAdminPane VSessionName
+  | CreatePane VSessionName VWindowName Command
+  | KillPane VSessionName Int
+  | CreateWindow VSessionName VWindowName
+  | KillWindow VSessionName VWindowName
+  | AttachToSession VSessionName
+  | SwitchToSession VSessionName
+  | KillSession VSessionName
+  | NewSession VSessionName
+  | SendKeys VSessionName String
   deriving (Eq, Ord, Show, Generic)
 
 newtype Command
@@ -88,8 +88,8 @@ newtype Command
 
 data Running
   = Running
-      { sessionName :: SessionName,
-        windowName :: WindowName,
+      { sessionName :: VSessionName,
+        windowName :: VWindowName,
         cmd :: PaneCommand,
         index :: Int
       }

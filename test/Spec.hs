@@ -1,149 +1,22 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
+import qualified Data.List.NonEmpty as NE
 import Dhall
 import Dhall.Core (pretty)
 import Test.Hspec
 import Test.QuickCheck
 import Test.QuickCheck.Monadic
+import qualified Tests.TmuxMate.TmuxCommands as TmuxCommands
 import Tests.TmuxMate.Types (Session)
 import qualified Tests.TmuxMate.Validate as Validate
 import TmuxMate
 import TmuxMate.Running
 import TmuxMate.Types
-  ( Command (..),
-    InTmuxSession (..),
-    Pane (..),
-    PaneCommand (..),
-    Running (..),
-    SessionName (..),
-    TmuxCommand (..),
-    Window (..),
-    WindowName (..),
-  )
 
 main :: IO ()
 main = hspec $ do
   Validate.spec
-  describe "createSession" $ do
-    it "Creates a session if needed" $ do
-      createSession
-        ( InTmuxSession
-            (SessionName "horses")
-        )
-        (SessionName "horses")
-        []
-        `shouldBe` [ NewSession (SessionName "horses"),
-                     SwitchToSession (SessionName "horses")
-                   ]
-    it "Creates a session but does not switch to it if we're outside tmux" $ do
-      createSession NotInTmuxSession (SessionName "horses") []
-        `shouldBe` [NewSession (SessionName "horses")]
-    it "Does nothing if one already exists" $ do
-      createSession
-        (InTmuxSession (SessionName "horses"))
-        (SessionName "horses")
-        [SessionName "horses"]
-        `shouldBe` [SwitchToSession (SessionName "horses")]
-  describe "createWindow" $ do
-    it "Creates a window if needed" $ do
-      createWindow
-        (SessionName "horses")
-        []
-        (WindowName "window")
-        `shouldBe` Just
-          (CreateWindow (SessionName "horses") (WindowName "window"))
-    it "Creates a window if there is matching one but it's in another session" $ do
-      createWindow
-        (SessionName "horses")
-        [Running (SessionName "other") (WindowName "window") undefined 0]
-        (WindowName "window")
-        `shouldBe` Just
-          (CreateWindow (SessionName "horses") (WindowName "window"))
-    it "Does nothing if one already exists" $ do
-      createWindow
-        (SessionName "horses")
-        [Running (SessionName "horses") (WindowName "window") undefined 0]
-        (WindowName "window")
-        `shouldBe` Nothing
-  describe "createWindowPanes" $ do
-    it "Creates one if nothing is there" $ do
-      createWindowPanes
-        (SessionName "horses")
-        []
-        ( Window
-            (WindowName "window")
-            [Pane (PaneCommand "go") undefined]
-        )
-        `shouldBe` [CreatePane (SessionName "horses") (WindowName "window") (Command "go")]
-    it "Creates one if something matches in another window" $ do
-      createWindowPanes
-        (SessionName "horses")
-        [Running (SessionName "horses") (WindowName "different-window") (PaneCommand "go") 0]
-        ( Window
-            (WindowName "window")
-            [Pane (PaneCommand "go") undefined]
-        )
-        `shouldBe` [CreatePane (SessionName "horses") (WindowName "window") (Command "go")]
-    it "Does nothing if one exists" $ do
-      createWindowPanes
-        (SessionName "horses")
-        [Running (SessionName "horses") (WindowName "window") (PaneCommand "go") 0]
-        ( Window
-            (WindowName "window")
-            [Pane (PaneCommand "go") undefined]
-        )
-        `shouldBe` []
-  describe "removeWindowPanes" $ do
-    it "Does nothing if nothing running" $ do
-      removeWindowPanes
-        (SessionName "horses")
-        []
-        []
-        `shouldBe` []
-    it "Does nothing if running pane is still needed" $ do
-      removeWindowPanes
-        (SessionName "horses")
-        [Running (SessionName "horses") (WindowName "window") (PaneCommand "go") 0]
-        [ ( Window
-              (WindowName "window")
-              [Pane (PaneCommand "go") undefined]
-          )
-        ]
-        `shouldBe` []
-    it "Creates a remove events if pane is no longer needed" $ do
-      removeWindowPanes
-        (SessionName "horses")
-        [Running (SessionName "horses") (WindowName "different-window") (PaneCommand "go") 24]
-        []
-        `shouldBe` [KillPane (SessionName "horses") 24]
-  describe "removeWindows" $ do
-    it "Does nothing if no window to remove" $ do
-      removeWindows
-        (SessionName "horses")
-        []
-        [ ( Window
-              (WindowName "window")
-              [Pane (PaneCommand "go") undefined]
-          )
-        ]
-        `shouldBe` []
-    it "Should remove a window if it's no longer needed" $ do
-      removeWindows
-        (SessionName "horses")
-        [Running (SessionName "horses") (WindowName "window2") (PaneCommand "no") 10]
-        [ ( Window
-              (WindowName "window")
-              [Pane (PaneCommand "go") undefined]
-          )
-        ]
-        `shouldBe` [KillWindow (SessionName "horses") (WindowName "window2")]
-  describe "attachToSession" $ do
-    it "Attaches to new session if just created" $ do
-      attachToSession NotInTmuxSession (SessionName "new-session") []
-        `shouldBe` [AttachToSession (SessionName "new-session")]
-    it "Switches back to old session if we're already in tmux" $ do
-      attachToSession (InTmuxSession (SessionName "old-session")) (SessionName "new-session") []
-        `shouldBe` [SwitchToSession (SessionName "old-session")]
+  TmuxCommands.spec
   describe "ParseRunning" $ do
     it "Rejects nonsense" $ do
       parseSingle "sdfdsf" `shouldBe` Nothing
@@ -151,8 +24,8 @@ main = hspec $ do
       parseSingle "foo:bar:1:yes Pane 1"
         `shouldBe` Just
           ( Running
-              (SessionName "foo")
-              (WindowName "bar")
+              (VSessionName (NE.fromList "foo"))
+              (VWindowName (NE.fromList "bar"))
               (PaneCommand "yes Pane 1")
               1
           )
@@ -160,21 +33,22 @@ main = hspec $ do
       parseSingle "foo:bar:1:yes Pane 1:2"
         `shouldBe` Just
           ( Running
-              (SessionName "foo")
-              (WindowName "bar")
+              (VSessionName (NE.fromList "foo"))
+              (VWindowName (NE.fromList "bar"))
               (PaneCommand "yes Pane 1:2")
               1
           )
     it "returns the original number when given a positive input" $
-      parseRunning (SessionName "foo") "0:0:\nfoo:bar:0:yes Pane 2\nfoo:bar:1:yes Pane 1\n"
+      parseRunning
+        "0:0:\nfoo:bar:0:yes Pane 2\nfoo:bar:1:yes Pane 1\n"
         `shouldBe` [ Running
-                       (SessionName "foo")
-                       (WindowName "bar")
+                       (VSessionName (NE.fromList "foo"))
+                       (VWindowName (NE.fromList "bar"))
                        (PaneCommand "yes Pane 2")
                        0,
                      Running
-                       (SessionName "foo")
-                       (WindowName "bar")
+                       (VSessionName (NE.fromList "foo"))
+                       (VWindowName (NE.fromList "bar"))
                        (PaneCommand "yes Pane 1")
                        1
                    ]
