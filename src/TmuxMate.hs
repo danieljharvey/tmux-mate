@@ -3,12 +3,6 @@
 
 module TmuxMate
   ( loadTestSession,
-    createSession,
-    createWindow,
-    createWindowPanes,
-    removeWindowPanes,
-    removeWindows,
-    attachToSession,
   )
 where
 

@@ -4,10 +4,8 @@
 module TmuxMate.TmuxCommands
   ( createSession,
     createWindow,
-    createWindowPanes,
     removeWindowPanes,
     removeWindows,
-    attachToSession,
     getTmuxCommands,
   )
 where
@@ -33,70 +31,88 @@ getTmuxCommands sesh tmuxState =
       runningInTmux =
         inSession tmuxState
       sTitle =
-        vSessionTitle sesh
+        case runningInTmux of
+          NotInTmuxSession -> vSessionTitle sesh
+          InTmuxSession sesh' -> sesh'
       sWindows =
-        vSessionWindows sesh
-   in (createSession runningInTmux sTitle runningSessions)
+        NE.toList (vSessionWindows sesh)
+   in {-case runningInTmux of
+        NotInTmuxSession -> NE.tail (vSessionWindows sesh) -- first one is dealt with in invocation of session
+        InTmuxSession _ -> NE.toList (vSessionWindows sesh)-}
+      (createSession runningInTmux sesh)
         <> ( concatMap
-               (maybeToList . createWindow sTitle runningPanes)
-               (vWindowTitle <$> sWindows)
-           )
-        <> ( concatMap
-               (createWindowPanes sTitle runningPanes)
-               (vSessionWindows sesh)
+               (createWindow sTitle runningPanes)
+               sWindows
            )
         <> (removeWindowPanes sTitle runningPanes sWindows)
         <> (removeWindows sTitle runningPanes sWindows)
         <> (removeAdminPane sTitle)
-        <> (attachToSession runningInTmux sTitle runningSessions)
+        <> [AttachToSession sTitle]
 
 -- create a new session if required
-createSession :: InTmuxSession -> VSessionName -> [VSessionName] -> [TmuxCommand]
-createSession inTmux seshName runningSessions =
-  if sessionExists seshName runningSessions
-    then case inTmux of
-      InTmuxSession _ -> [SwitchToSession seshName]
-      NotInTmuxSession -> []
-    else case inTmux of
-      InTmuxSession _ -> [NewSession seshName, SwitchToSession seshName]
-      NotInTmuxSession -> [NewSession seshName]
+createSession :: InTmuxSession -> ValidatedSession -> [TmuxCommand]
+createSession inTmux session =
+  let seshName = vSessionTitle session
+   in case inTmux of
+        InTmuxSession currentSesh -> [] -- AttachToSession currentSesh]
+        NotInTmuxSession ->
+          [ NewSession
+              seshName
+          ]
 
 sessionExists :: VSessionName -> [VSessionName] -> Bool
 sessionExists = elem
 
 -- do we need to create this window?
-createWindow :: VSessionName -> [Running] -> VWindowName -> Maybe TmuxCommand
-createWindow seshName running winName =
-  if windowExists seshName winName running
-    then Nothing
-    else Just (CreateWindow seshName winName)
+createWindow :: VSessionName -> [Running] -> VWindow -> [TmuxCommand]
+createWindow seshName running window =
+  if windowExists seshName (vWindowTitle window) running
+    then
+      createWindowPanes
+        seshName
+        (vWindowTitle window)
+        (NE.toList $ vWindowPanes window)
+        running
+    else
+      pure
+        ( CreateWindow
+            seshName
+            (vWindowTitle window)
+            (paneCmdToCmd (NE.head (vWindowPanes window)))
+        )
+        <> createWindowPanes
+          seshName
+          (vWindowTitle window)
+          (NE.tail $ vWindowPanes window)
+          running
 
 windowExists :: VSessionName -> VWindowName -> [Running] -> Bool
 windowExists seshName winName running =
   length (filter (\a -> windowName a == winName && sessionName a == seshName) running) > 0
 
 -- create panes we need for a given window
-createWindowPanes :: VSessionName -> [Running] -> VWindow -> [TmuxCommand]
-createWindowPanes seshName running window =
+createWindowPanes :: VSessionName -> VWindowName -> [Pane] -> [Running] -> [TmuxCommand]
+createWindowPanes seshName windowName panes running =
   ( \pane ->
       CreatePane
         seshName
-        (vWindowTitle window)
+        windowName
         (paneCmdToCmd pane)
   )
     <$> filterPanes
       seshName
-      (vWindowTitle window)
+      windowName
       running
-      (vWindowPanes window)
-  where
-    paneCmdToCmd =
-      Command . getPaneCommand . paneCommand
+      panes
+
+paneCmdToCmd :: Pane -> Command
+paneCmdToCmd =
+  Command . getPaneCommand . paneCommand
 
 -- work out what panes we need to create
-filterPanes :: VSessionName -> VWindowName -> [Running] -> NE.NonEmpty Pane -> [Pane]
+filterPanes :: VSessionName -> VWindowName -> [Running] -> [Pane] -> [Pane]
 filterPanes seshName winName running panes =
-  NE.filter (\pane -> not $ matchCommand (removeQuotes (paneCommand pane))) panes
+  filter (\pane -> not $ matchCommand (removeQuotes (paneCommand pane))) panes
   where
     matchCommand str =
       length
@@ -113,12 +129,12 @@ filterPanes seshName winName running panes =
 --------------------------
 -- removing stuff again
 
-removeWindowPanes :: VSessionName -> [Running] -> NE.NonEmpty VWindow -> [TmuxCommand]
+removeWindowPanes :: VSessionName -> [Running] -> [VWindow] -> [TmuxCommand]
 removeWindowPanes seshName running windows =
   (\(Running _ _ _ i) -> KillPane seshName i)
     <$> (filterRunning seshName windows running)
 
-filterRunning :: VSessionName -> NE.NonEmpty VWindow -> [Running] -> [Running]
+filterRunning :: VSessionName -> [VWindow] -> [Running] -> [Running]
 filterRunning seshName windows running =
   filter
     ( \(Running seshName' winName' run _) ->
@@ -128,7 +144,7 @@ filterRunning seshName windows running =
     )
     running
   where
-    anyMatch :: PaneCommand -> NE.NonEmpty VWindow -> Bool
+    anyMatch :: PaneCommand -> [VWindow] -> Bool
     anyMatch str windows' =
       getAny (foldMap (matchCommand str) windows)
     matchCommand :: PaneCommand -> VWindow -> Any
@@ -143,7 +159,7 @@ filterRunning seshName windows running =
           )
           > 0
 
-removeWindows :: VSessionName -> [Running] -> NE.NonEmpty VWindow -> [TmuxCommand]
+removeWindows :: VSessionName -> [Running] -> [VWindow] -> [TmuxCommand]
 removeWindows seshName running windows =
   ( \winTitle' ->
       KillWindow
@@ -160,13 +176,6 @@ removeWindows seshName running windows =
       vWindowTitle <$> windows
     runningWindowNames =
       nub $ windowName <$> filter (\(Running sesh' win' _ _) -> sesh' == seshName) running
-
---- attaching or switching to session
-attachToSession :: InTmuxSession -> VSessionName -> [VSessionName] -> [TmuxCommand]
-attachToSession inTmux seshName runningSessions =
-  case inTmux of
-    InTmuxSession sesh -> [SwitchToSession sesh]
-    _ -> [AttachToSession seshName]
 
 -- remove admin window (always)
 

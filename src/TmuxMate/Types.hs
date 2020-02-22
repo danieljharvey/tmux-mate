@@ -66,10 +66,9 @@ data TmuxCommand
   | KillAdminPane VSessionName
   | CreatePane VSessionName VWindowName Command
   | KillPane VSessionName Int
-  | CreateWindow VSessionName VWindowName
+  | CreateWindow VSessionName VWindowName Command
   | KillWindow VSessionName VWindowName
   | AttachToSession VSessionName
-  | SwitchToSession VSessionName
   | KillSession VSessionName
   | NewSession VSessionName
   | SendKeys VSessionName String

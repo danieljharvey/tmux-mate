@@ -16,31 +16,25 @@ import TmuxMate.Types
 spec :: Spec
 spec = do
   describe "createSession" $ do
-    it "Creates a session if needed" $ do
+    it "Attaches to session if it exists" $ do
       createSession
         ( InTmuxSession
             (VSessionName $ NE.fromList "horses")
         )
         (VSessionName $ NE.fromList "horses")
-        []
-        `shouldBe` [ NewSession (VSessionName $ NE.fromList "horses"),
-                     SwitchToSession (VSessionName $ NE.fromList "horses")
-                   ]
-    it "Creates a session but does not switch to it if we're outside tmux" $ do
-      createSession NotInTmuxSession (VSessionName $ NE.fromList "horses") []
+        `shouldBe` [AttachToSession (VSessionName $ NE.fromList "horses")]
+    it "Creates a session if we are not in tmux" $ do
+      createSession NotInTmuxSession (VSessionName $ NE.fromList "horses")
         `shouldBe` [NewSession (VSessionName $ NE.fromList "horses")]
-    it "Does nothing if one already exists" $ do
-      createSession
-        (InTmuxSession (VSessionName (NE.fromList "horses")))
-        (VSessionName (NE.fromList "horses"))
-        [VSessionName (NE.fromList "horses")]
-        `shouldBe` [SwitchToSession (VSessionName (NE.fromList "horses"))]
   describe "createWindow" $ do
     it "Creates a window if needed" $ do
       createWindow
         (VSessionName $ NE.fromList "horses")
         []
-        (VWindowName $ NE.fromList "window")
+        ( VWindow
+            (VWindowName (NE.fromList "window"))
+            $ NE.fromList [Pane (PaneCommand "go")]
+        )
         `shouldBe` Just
           ( CreateWindow
               (VSessionName $ NE.fromList "horses")
@@ -55,7 +49,10 @@ spec = do
             undefined
             0
         ]
-        (VWindowName $ NE.fromList "window")
+        ( VWindow
+            (VWindowName (NE.fromList "window"))
+            $ NE.fromList [Pane (PaneCommand "go")]
+        )
         `shouldBe` Just
           ( CreateWindow
               (VSessionName $ NE.fromList "horses")
@@ -70,7 +67,10 @@ spec = do
             undefined
             0
         ]
-        (VWindowName $ NE.fromList "window")
+        ( VWindow
+            (VWindowName (NE.fromList "window"))
+            $ NE.fromList [Pane (PaneCommand "go")]
+        )
         `shouldBe` Nothing
   describe "createWindowPanes" $ do
     it "Creates one if nothing is there" $ do
@@ -199,26 +199,3 @@ spec = do
                        (VSessionName (NE.fromList "horses"))
                        (VWindowName (NE.fromList "window2"))
                    ]
-  describe "attachToSession" $ do
-    it "Attaches to new session if just created" $ do
-      attachToSession
-        NotInTmuxSession
-        ( VSessionName
-            (NE.fromList "new-session")
-        )
-        []
-        `shouldBe` [ AttachToSession
-                       ( VSessionName
-                           (NE.fromList "new-session")
-                       )
-                   ]
-    it "Switches back to old session if we're already in tmux" $ do
-      attachToSession
-        ( InTmuxSession
-            ( VSessionName
-                (NE.fromList "old-session")
-            )
-        )
-        (VSessionName (NE.fromList "new-session"))
-        []
-        `shouldBe` [SwitchToSession (VSessionName (NE.fromList "old-session"))]
