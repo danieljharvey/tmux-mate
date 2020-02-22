@@ -6,6 +6,7 @@ import Test.Hspec
 import Test.QuickCheck
 import Test.QuickCheck.Monadic
 import Tests.TmuxMate.Types (Session)
+import qualified Tests.TmuxMate.Validate as Validate
 import TmuxMate
 import TmuxMate.Running
 import TmuxMate.Types
@@ -22,6 +23,7 @@ import TmuxMate.Types
 
 main :: IO ()
 main = hspec $ do
+  Validate.spec
   describe "createSession" $ do
     it "Creates a session if needed" $ do
       createSession
