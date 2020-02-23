@@ -1,58 +1,65 @@
-module TmuxMate.Commands (startSession, addPane, attach, removePane) where
+module TmuxMate.Commands where
 
+import qualified Data.List.NonEmpty as NE
 import TmuxMate.Types
 
--- trash session in case it's already there
-startSession :: IsNewSession -> SessionName -> [Command]
-startSession isNew seshTitle =
-  case isNew of
-    NewSession -> [newSession seshTitle]
-    OldSession -> [createAdminWindow seshTitle]
-
-addPane :: SessionName -> Pane -> [Command]
-addPane name (Pane command title) =
-  [ sendKeys name ("tmux split-window -h -d " <> (getPaneCommand command))
-  ]
-
-removePane :: SessionName -> Running -> [Command]
-removePane name (Running _ _ index) =
-  [ sendKeys name ("tmux kill-pane -t " <> show index)
-  ]
-
-attach :: IsNewSession -> SessionName -> [Command]
-attach isNew seshTitle =
-  case isNew of
-    NewSession ->
-      [ killAdminWindow seshTitle,
-        attachToSession seshTitle
-      ]
-    OldSession -> [killAdminWindow seshTitle]
-
-sendKeys :: SessionName -> String -> Command
-sendKeys (SessionName name) str =
-  Required $
-    "tmux send-keys -t " <> name <> " \""
+sendKeys :: VSessionName -> String -> Command
+sendKeys (VSessionName name) str =
+  Command $
+    "tmux send-keys -t " <> (NE.toList name) <> " \""
       <> str
       <> "\" ENTER"
 
---
+adminPaneName :: String
+adminPaneName = "tmux-mate-admin"
 
-attachToSession :: SessionName -> Command
-attachToSession (SessionName name) =
-  Required $ "tmux attach-session -t " <> name
-
-killSession :: SessionName -> Command
-killSession (SessionName name) =
-  Optional $ "tmux kill-session -t " <> name
-
-newSession :: SessionName -> Command
-newSession (SessionName name) =
-  Required $ "tmux new-session -d -s " <> name
-
-createAdminWindow :: SessionName -> Command
-createAdminWindow (SessionName name) =
-  Required $ "tmux split-window -v -t " <> name
-
-killAdminWindow :: SessionName -> Command
-killAdminWindow name =
-  sendKeys name "exit"
+-- turns our DSL into actual tmux commands
+createActualCommand :: TmuxCommand -> [Command]
+createActualCommand (CreateAdminPane (VSessionName seshName)) =
+  pure $ Command $
+    "tmux split-window -v -t "
+      <> NE.toList seshName
+createActualCommand (KillAdminPane seshName) =
+  [ Command $ "tmux select-window -t " <> adminPaneName,
+    sendKeys seshName "exit"
+  ]
+createActualCommand (CreatePane _ (VWindowName winName) newCmd) =
+  [ Command $ "tmux select-window -t " <> NE.toList winName,
+    Command $
+      "tmux split-window "
+        <> (getCommand newCmd),
+    Command $ "tmux select-layout even-horizontal" -- for now let's stop it filling up
+  ]
+createActualCommand (KillPane seshName paneIndex) =
+  pure $
+    sendKeys
+      seshName
+      ( "tmux kill-pane -t "
+          <> show paneIndex
+      )
+createActualCommand (AttachToSession (VSessionName seshName)) =
+  pure $ Command $
+    "tmux attach-session -t "
+      <> NE.toList seshName
+createActualCommand (KillSession (VSessionName seshName)) =
+  pure $ Command $
+    "tmux kill-session -t "
+      <> NE.toList seshName
+createActualCommand (NewSession (VSessionName seshName)) =
+  pure $ Command $
+    "tmux new-session -d -s "
+      <> NE.toList seshName
+      <> " -n "
+      <> adminPaneName
+createActualCommand (CreateWindow _ (VWindowName winName) (Command newCmd)) =
+  [ Command $
+      "tmux new-window -n "
+        <> NE.toList winName
+        <> " "
+        <> newCmd
+  ]
+createActualCommand (KillWindow _ (VWindowName winName)) =
+  [ Command $
+      "tmux kill-window -t "
+        <> NE.toList winName
+  ]

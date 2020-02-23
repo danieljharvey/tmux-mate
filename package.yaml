@@ -54,3 +54,4 @@ tests:
       - generic-arbitrary
       - dhall
       - hspec
+      - text
