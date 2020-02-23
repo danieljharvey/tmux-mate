@@ -4,12 +4,6 @@ module Tests.TmuxMate.TmuxCommands where
 
 import qualified Data.List.NonEmpty as NE
 import Test.Hspec
-import Test.QuickCheck
-import Test.QuickCheck.Monadic
-import Tests.TmuxMate.Types (Session)
-import qualified Tests.TmuxMate.Validate as Validate
-import TmuxMate
-import TmuxMate.Running
 import TmuxMate.TmuxCommands
 import TmuxMate.Types
 
@@ -36,12 +30,12 @@ spec = do
         sampleSession
         []
         `shouldBe` []
-    it "Attaches to session if it already exists" $ do
+    it "Does nothing if session already exists" $ do
       createSession
         NotInTmuxSession
         sampleSession
         [VSessionName $ NE.fromList "horses"]
-        `shouldBe` [AttachToSession (VSessionName $ NE.fromList "horses")]
+        `shouldBe` [] -- AttachToSession (VSessionName $ NE.fromList "horses")]
     it "Creates a session if we are not in tmux and session is not running" $ do
       createSession NotInTmuxSession sampleSession []
         `shouldBe` [NewSession (VSessionName $ NE.fromList "horses")]

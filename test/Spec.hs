@@ -1,6 +1,9 @@
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeApplications #-}
 
 import qualified Data.List.NonEmpty as NE
+import qualified Data.Text as Text
+import qualified Data.Text.IO as Text.IO
 import Dhall
 import Dhall.Core (pretty)
 import Test.Hspec
@@ -9,7 +12,6 @@ import Test.QuickCheck.Monadic
 import qualified Tests.TmuxMate.TmuxCommands as TmuxCommands
 import Tests.TmuxMate.Types (Session)
 import qualified Tests.TmuxMate.Validate as Validate
-import TmuxMate
 import TmuxMate.Running
 import TmuxMate.Types
 
@@ -52,10 +54,13 @@ main = hspec $ do
                        (PaneCommand "yes Pane 1")
                        1
                    ]
-
-{-describe "Dhall" $ do
-  it "Round trips Dhall encoding" $ do
-    property dhallSessionRoundtrip -}
+  describe "Dhall" $ do
+    it "Round trips Dhall encoding" $ do
+      property dhallSessionRoundtrip
+    it "Generates a Dhall schema that matches our advertised one" $ do
+      let schema = (Dhall.Core.pretty (Dhall.expected (Dhall.auto @Session)))
+      savedSchema <- Text.IO.readFile "./samples/Schema.dhall"
+      Text.stripEnd schema `shouldBe` Text.stripEnd savedSchema
 
 dhallSessionRoundtrip :: Property
 dhallSessionRoundtrip =

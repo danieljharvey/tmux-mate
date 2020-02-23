@@ -10,7 +10,8 @@ sendKeys (VSessionName name) str =
       <> str
       <> "\" ENTER"
 
---
+adminPaneName :: String
+adminPaneName = "tmux-mate-admin"
 
 -- turns our DSL into actual tmux commands
 createActualCommand :: TmuxCommand -> [Command]
@@ -19,22 +20,22 @@ createActualCommand (CreateAdminPane (VSessionName seshName)) =
     "tmux split-window -v -t "
       <> NE.toList seshName
 createActualCommand (KillAdminPane seshName) =
-  [ Command $ "tmux select-window -t tmux-mate-admin",
+  [ Command $ "tmux select-window -t " <> adminPaneName,
     sendKeys seshName "exit"
   ]
-createActualCommand (CreatePane seshName (VWindowName winName) cmd) =
+createActualCommand (CreatePane _ (VWindowName winName) newCmd) =
   [ Command $ "tmux select-window -t " <> NE.toList winName,
     Command $
       "tmux split-window "
-        <> (getCommand cmd),
+        <> (getCommand newCmd),
     Command $ "tmux select-layout even-horizontal" -- for now let's stop it filling up
   ]
-createActualCommand (KillPane seshName index) =
+createActualCommand (KillPane seshName paneIndex) =
   pure $
     sendKeys
       seshName
       ( "tmux kill-pane -t "
-          <> show index
+          <> show paneIndex
       )
 createActualCommand (AttachToSession (VSessionName seshName)) =
   pure $ Command $
@@ -48,10 +49,17 @@ createActualCommand (NewSession (VSessionName seshName)) =
   pure $ Command $
     "tmux new-session -d -s "
       <> NE.toList seshName
-      <> " -n tmux-mate-admin"
-createActualCommand (CreateWindow (VSessionName seshName) (VWindowName winName) (Command cmd)) =
-  pure $ Command $
-    "tmux new-window -n "
-      <> NE.toList winName
-      <> " "
-      <> cmd
+      <> " -n "
+      <> adminPaneName
+createActualCommand (CreateWindow _ (VWindowName winName) (Command newCmd)) =
+  [ Command $
+      "tmux new-window -n "
+        <> NE.toList winName
+        <> " "
+        <> newCmd
+  ]
+createActualCommand (KillWindow _ (VWindowName winName)) =
+  [ Command $
+      "tmux kill-window -t "
+        <> NE.toList winName
+  ]

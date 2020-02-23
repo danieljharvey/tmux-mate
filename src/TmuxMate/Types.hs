@@ -6,7 +6,7 @@
 module TmuxMate.Types where
 
 import Data.List.NonEmpty
-import Dhall (Decoder, FromDhall, ToDhall, autoWith)
+import Dhall (FromDhall, ToDhall)
 import GHC.Generics
 
 data InTmuxSession
@@ -71,7 +71,6 @@ data TmuxCommand
   | AttachToSession VSessionName
   | KillSession VSessionName
   | NewSession VSessionName
-  | SendKeys VSessionName String
   deriving (Eq, Ord, Show, Generic)
 
 newtype Command
@@ -93,7 +92,16 @@ data ValidationError
   | NoWindows
   | EmptyWindowName
   | WindowWithNoPanes VWindowName
-  deriving (Eq, Ord, Show)
+  deriving (Eq, Ord)
+
+instance Show ValidationError where
+  show EmptySessionName = "Session title must not be an empty string."
+  show NoWindows = "Session must contain at least one window."
+  show EmptyWindowName = "All windows must have a non-empty title."
+  show (WindowWithNoPanes (VWindowName name)) =
+    "Window '"
+      <> toList name
+      <> "' does not have any panes! All windows must contain at least one pane."
 
 newtype VSessionName
   = VSessionName {getVSessionName :: NonEmpty Char}

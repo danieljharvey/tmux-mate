@@ -3,8 +3,8 @@
 module TmuxMate.Running where
 
 import Control.Exception
-import Data.List (intercalate, isPrefixOf)
-import Data.Maybe (catMaybes, listToMaybe)
+import Data.List (intercalate)
+import Data.Maybe (catMaybes)
 import System.Environment
 import System.Process
 import Text.Read
@@ -13,16 +13,16 @@ import TmuxMate.Validate
 
 buildTmuxState :: IO TmuxState
 buildTmuxState = do
-  sessions <- askRunningSessions
-  running <- askRunning
+  sessions' <- askRunningSessions
+  running' <- askRunning
   inTmux <- askIfWeAreInTmux
-  pure $ TmuxState inTmux running sessions
+  pure $ TmuxState inTmux running' sessions'
 
 askTmuxState :: IO TmuxState
 askTmuxState =
   catch
     (buildTmuxState)
-    (\(e :: IOError) -> pure def)
+    (\(_ :: IOError) -> pure def)
   where
     def = TmuxState
       { inSession = NotInTmuxSession,
@@ -34,7 +34,7 @@ askTmuxState =
 
 askRunning :: IO [Running]
 askRunning = do
-  str <- catch readTmuxProcess (\(e :: IOError) -> pure "")
+  str <- catch readTmuxProcess (\(_ :: IOError) -> pure "")
   pure $ parseRunning str
 
 -- ask Tmux what's cooking
@@ -47,7 +47,7 @@ readTmuxProcess =
 -- "foo/npoo/n0/n"
 askRunningSessions :: IO [VSessionName]
 askRunningSessions = do
-  str <- catch readTmuxSessions (\(e :: IOError) -> pure "")
+  str <- catch readTmuxSessions (\(_ :: IOError) -> pure "")
   pure $ catMaybes $
     ( hush
         . parseSessionName
@@ -70,7 +70,7 @@ askIfWeAreInTmux = do
   case tmuxEnv of
     Nothing -> pure NotInTmuxSession
     Just "" -> pure NotInTmuxSession
-    Just a -> do
+    Just _ -> do
       case (parseSessionName seshName) of
         Right seshName' -> pure $ InTmuxSession seshName'
         _ -> pure NotInTmuxSession
@@ -104,20 +104,20 @@ parseSingle :: String -> Maybe Running
 parseSingle str =
   Running
     <$> seshName
-      <*> windowName
-      <*> cmd
-      <*> index
+      <*> windowName'
+      <*> cmd'
+      <*> index'
   where
     seshName =
       (SessionName <$> myLookup 0 subStrs)
         >>= (hush . parseSessionName)
-    windowName =
+    windowName' =
       (WindowName <$> myLookup 1 subStrs)
         >>= (hush . parseWindowName)
-    index =
+    index' =
       myLookup 2 subStrs
         >>= readMaybe
-    cmd = case intercalate ":" (drop 3 subStrs) of
+    cmd' = case intercalate ":" (drop 3 subStrs) of
       "" -> Nothing
       a -> Just (PaneCommand a)
     subStrs = wordsWhen (== ':') str
