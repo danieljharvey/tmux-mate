@@ -35,8 +35,8 @@ getTmuxCommands sesh tmuxState =
                (createWindow sTitle runningPanes)
                sWindows
            )
-        <> (removeWindowPanes sTitle runningPanes sWindows)
-        <> (removeWindows sTitle runningPanes sWindows)
+        <> (removeWindowPanes runningInTmux sTitle runningPanes sWindows)
+        <> (removeWindows runningInTmux sTitle runningPanes sWindows)
         <> ( if needsNewSession runningInTmux sTitle runningSessions
                then removeAdminPane sTitle
                else []
@@ -128,21 +128,28 @@ filterPanes seshName winName running' panes =
 --------------------------
 -- removing stuff again
 
-removeWindowPanes :: VSessionName -> [Running] -> [VWindow] -> [TmuxCommand]
-removeWindowPanes seshName running' windows =
+removeWindowPanes :: InTmuxSession -> VSessionName -> [Running] -> [VWindow] -> [TmuxCommand]
+removeWindowPanes inTmux seshName running' windows =
   (\(Running _ _ _ i) -> KillPane seshName i)
-    <$> (filterRunning seshName windows running')
+    <$> (filterRunning inTmux seshName windows running')
 
-filterRunning :: VSessionName -> [VWindow] -> [Running] -> [Running]
-filterRunning seshName windows running' =
+filterRunning :: InTmuxSession -> VSessionName -> [VWindow] -> [Running] -> [Running]
+filterRunning inTmux seshName windows running' =
   filter
-    ( \(Running seshName' _ run _) ->
-        not $
-          anyMatch (removeQuotes run) windows
-            && seshName == seshName'
+    ( \(Running seshName' winName' run _) ->
+        windowMatch winName'
+          && ( not $
+                 anyMatch (removeQuotes run) windows
+                   && seshName == seshName'
+             )
     )
     running'
   where
+    -- is this even in a window relevant to us?
+    windowMatch :: VWindowName -> Bool
+    windowMatch winName' = case inTmux of
+      NotInTmuxSession -> True
+      InTmuxSession _ -> elem winName' (vWindowTitle <$> windows)
     anyMatch :: PaneCommand -> [VWindow] -> Bool
     anyMatch str windows' =
       getAny (foldMap (matchCommand str) windows')
@@ -158,18 +165,30 @@ filterRunning seshName windows running' =
           )
           > 0
 
-removeWindows :: VSessionName -> [Running] -> [VWindow] -> [TmuxCommand]
-removeWindows seshName running' windows =
-  ( \winTitle' ->
-      KillWindow
-        seshName
-        winTitle'
-  )
-    <$> filter
-      ( \win' ->
-          notElem win' requiredWindowNames
+-- important thing here is whether this is actually our session to run
+-- if we're running in tmux we're a guest in another session and we should only
+-- edit windows that are in our config file, and leave the rest be.
+removeWindows ::
+  InTmuxSession ->
+  VSessionName ->
+  [Running] ->
+  [VWindow] ->
+  [TmuxCommand]
+removeWindows inTmux seshName running' windows =
+  case inTmux of
+    NotInTmuxSession ->
+      ( ( \winTitle' ->
+            KillWindow
+              seshName
+              winTitle'
+        )
+          <$> filter
+            ( \win' ->
+                notElem win' requiredWindowNames
+            )
+            runningWindowNames
       )
-      runningWindowNames
+    _ -> []
   where
     requiredWindowNames =
       vWindowTitle <$> windows
