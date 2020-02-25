@@ -35,7 +35,7 @@ getTmuxCommands sesh tmuxState =
                (createWindow sTitle runningPanes)
                sWindows
            )
-        <> (removeWindowPanes sTitle runningPanes sWindows)
+        <> (removeWindowPanes runningInTmux sTitle runningPanes sWindows)
         <> (removeWindows runningInTmux sTitle runningPanes sWindows)
         <> ( if needsNewSession runningInTmux sTitle runningSessions
                then removeAdminPane sTitle
@@ -128,21 +128,28 @@ filterPanes seshName winName running' panes =
 --------------------------
 -- removing stuff again
 
-removeWindowPanes :: VSessionName -> [Running] -> [VWindow] -> [TmuxCommand]
-removeWindowPanes seshName running' windows =
+removeWindowPanes :: InTmuxSession -> VSessionName -> [Running] -> [VWindow] -> [TmuxCommand]
+removeWindowPanes inTmux seshName running' windows =
   (\(Running _ _ _ i) -> KillPane seshName i)
-    <$> (filterRunning seshName windows running')
+    <$> (filterRunning inTmux seshName windows running')
 
-filterRunning :: VSessionName -> [VWindow] -> [Running] -> [Running]
-filterRunning seshName windows running' =
+filterRunning :: InTmuxSession -> VSessionName -> [VWindow] -> [Running] -> [Running]
+filterRunning inTmux seshName windows running' =
   filter
-    ( \(Running seshName' _ run _) ->
-        not $
-          anyMatch (removeQuotes run) windows
-            && seshName == seshName'
+    ( \(Running seshName' winName' run _) ->
+        windowMatch winName'
+          && ( not $
+                 anyMatch (removeQuotes run) windows
+                   && seshName == seshName'
+             )
     )
     running'
   where
+    -- is this even in a window relevant to us?
+    windowMatch :: VWindowName -> Bool
+    windowMatch winName' = case inTmux of
+      NotInTmuxSession -> True
+      InTmuxSession _ -> elem winName' (vWindowTitle <$> windows)
     anyMatch :: PaneCommand -> [VWindow] -> Bool
     anyMatch str windows' =
       getAny (foldMap (matchCommand str) windows')

@@ -150,6 +150,7 @@ spec = do
   describe "removeWindowPanes" $ do
     it "Does nothing if nothing running" $ do
       removeWindowPanes
+        NotInTmuxSession
         (VSessionName (NE.fromList "horses"))
         []
         [ ( VWindow
@@ -160,6 +161,7 @@ spec = do
         `shouldBe` []
     it "Does nothing if running pane is still needed" $ do
       removeWindowPanes
+        NotInTmuxSession
         (VSessionName (NE.fromList "horses"))
         [ Running
             (VSessionName (NE.fromList "horses"))
@@ -175,11 +177,33 @@ spec = do
         `shouldBe` []
     it "Creates a remove events if pane is no longer needed" $ do
       removeWindowPanes
+        NotInTmuxSession
+        (VSessionName (NE.fromList "horses"))
+        [ Running
+            (VSessionName (NE.fromList "horses"))
+            (VWindowName (NE.fromList "window"))
+            (PaneCommand "go")
+            24
+        ]
+        [ ( VWindow
+              (VWindowName (NE.fromList "window"))
+              $ NE.fromList [Pane (PaneCommand "whoa-no")]
+          )
+        ]
+        `shouldBe` [KillPane (VSessionName (NE.fromList "horses")) 24]
+    it "Does not remove panes from windows that are nothing to do with us if we do not control the session" $ do
+      removeWindowPanes
+        (InTmuxSession (VSessionName $ NE.fromList "horses"))
         (VSessionName (NE.fromList "horses"))
         [ Running
             (VSessionName (NE.fromList "horses"))
             (VWindowName (NE.fromList "different-window"))
-            (PaneCommand "go")
+            (PaneCommand "leave me")
+            27,
+          Running
+            (VSessionName (NE.fromList "horses"))
+            (VWindowName (NE.fromList "window"))
+            (PaneCommand "get rid of me")
             24
         ]
         [ ( VWindow
