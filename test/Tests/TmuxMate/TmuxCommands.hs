@@ -87,27 +87,36 @@ spec = do
             $ NE.fromList [Pane (PaneCommand "go")]
         )
         `shouldBe` []
-  {-describe "createWindowPanes" $ do
-    it "Creates one if nothing is there" $ do
-      createWindowPanes
+    it "Adds second pane to existing window" $ do
+      createWindow
         (VSessionName $ NE.fromList "horses")
-        []
+        [ Running
+            (VSessionName $ NE.fromList "horses")
+            (VWindowName $ NE.fromList "window")
+            (PaneCommand "go")
+            0
+        ]
         ( VWindow
             (VWindowName (NE.fromList "window"))
-            $ NE.fromList [Pane (PaneCommand "go")]
+            $ NE.fromList [Pane (PaneCommand "go"), Pane (PaneCommand "whoa")]
         )
         `shouldBe` [ CreatePane
                        (VSessionName $ NE.fromList "horses")
                        (VWindowName $ NE.fromList "window")
-                       (Command "go")
+                       (Command "whoa")
                    ]
-    it "Creates one if something matches in another window" $ do
-      createWindowPanes
+    it "Creates a pane if something matches, but it's in another window" $ do
+      createWindow
         (VSessionName $ NE.fromList "horses")
         [ Running
             (VSessionName $ NE.fromList "horses")
             (VWindowName $ NE.fromList "different-window")
             (PaneCommand "go")
+            0,
+          Running
+            (VSessionName $ NE.fromList "horses")
+            (VWindowName $ NE.fromList "window")
+            (PaneCommand "no")
             0
         ]
         ( VWindow
@@ -119,20 +128,25 @@ spec = do
                        (VWindowName $ NE.fromList "window")
                        (Command "go")
                    ]
-  it "Does nothing if one exists" $ do
-    createWindowPanes
-      (VSessionName (NE.fromList "horses"))
-      [ Running
-          (VSessionName (NE.fromList "horses"))
-          (VWindowName (NE.fromList "window"))
-          (PaneCommand "go")
-          0
-      ]
-      ( VWindow
-          (VWindowName (NE.fromList "window"))
-          $ NE.fromList [Pane (PaneCommand "go")]
-      )
-      `shouldBe` []-}
+    it "Ignores panes that already exist" $ do
+      createWindow
+        (VSessionName (NE.fromList "horses"))
+        [ Running
+            (VSessionName (NE.fromList "horses"))
+            (VWindowName (NE.fromList "window"))
+            (PaneCommand "go")
+            0,
+          Running
+            (VSessionName (NE.fromList "horses"))
+            (VWindowName (NE.fromList "window"))
+            (PaneCommand "yo")
+            0
+        ]
+        ( VWindow
+            (VWindowName (NE.fromList "window"))
+            $ NE.fromList [Pane (PaneCommand "go"), Pane (PaneCommand "yo")]
+        )
+        `shouldBe` []
   describe "removeWindowPanes" $ do
     it "Does nothing if nothing running" $ do
       removeWindowPanes
@@ -177,6 +191,7 @@ spec = do
   describe "removeWindows" $ do
     it "Does nothing if no window to remove" $ do
       removeWindows
+        NotInTmuxSession
         (VSessionName (NE.fromList "horses"))
         []
         [ ( VWindow
@@ -185,8 +200,9 @@ spec = do
           )
         ]
         `shouldBe` []
-    it "Should remove a window if it's no longer needed" $ do
+    it "Should remove a window if it's no longer needed in a hosted session" $ do
       removeWindows
+        NotInTmuxSession
         (VSessionName (NE.fromList "horses"))
         [ Running
             (VSessionName (NE.fromList "horses"))
@@ -204,3 +220,25 @@ spec = do
                        (VSessionName (NE.fromList "horses"))
                        (VWindowName (NE.fromList "window2"))
                    ]
+    it "Should leave a window that's no longer needed if we are not the session host" $ do
+      removeWindows
+        (InTmuxSession (VSessionName $ NE.fromList "bruce"))
+        (VSessionName (NE.fromList "bruce"))
+        [ Running
+            (VSessionName (NE.fromList "bruce"))
+            (VWindowName (NE.fromList "window"))
+            (PaneCommand "go")
+            10,
+          Running -- this one should be deleted really
+            (VSessionName (NE.fromList "bruce"))
+            (VWindowName (NE.fromList "window2"))
+            (PaneCommand "no")
+            10
+        ]
+        [ ( VWindow
+              (VWindowName (NE.fromList "window"))
+              $ NE.fromList
+                [Pane (PaneCommand "go")]
+          )
+        ]
+        `shouldBe` []

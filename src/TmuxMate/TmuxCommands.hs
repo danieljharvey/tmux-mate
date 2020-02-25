@@ -36,7 +36,7 @@ getTmuxCommands sesh tmuxState =
                sWindows
            )
         <> (removeWindowPanes sTitle runningPanes sWindows)
-        <> (removeWindows sTitle runningPanes sWindows)
+        <> (removeWindows runningInTmux sTitle runningPanes sWindows)
         <> ( if needsNewSession runningInTmux sTitle runningSessions
                then removeAdminPane sTitle
                else []
@@ -158,18 +158,30 @@ filterRunning seshName windows running' =
           )
           > 0
 
-removeWindows :: VSessionName -> [Running] -> [VWindow] -> [TmuxCommand]
-removeWindows seshName running' windows =
-  ( \winTitle' ->
-      KillWindow
-        seshName
-        winTitle'
-  )
-    <$> filter
-      ( \win' ->
-          notElem win' requiredWindowNames
+-- important thing here is whether this is actually our session to run
+-- if we're running in tmux we're a guest in another session and we should only
+-- edit windows that are in our config file, and leave the rest be.
+removeWindows ::
+  InTmuxSession ->
+  VSessionName ->
+  [Running] ->
+  [VWindow] ->
+  [TmuxCommand]
+removeWindows inTmux seshName running' windows =
+  case inTmux of
+    NotInTmuxSession ->
+      ( ( \winTitle' ->
+            KillWindow
+              seshName
+              winTitle'
+        )
+          <$> filter
+            ( \win' ->
+                notElem win' requiredWindowNames
+            )
+            runningWindowNames
       )
-      runningWindowNames
+    _ -> []
   where
     requiredWindowNames =
       vWindowTitle <$> windows
