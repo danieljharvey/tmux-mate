@@ -1,18 +1,20 @@
 module Main where
 
-import System.Environment
+import Options.Applicative
 import System.Exit
 import TmuxMate
 
 main :: IO ()
 main = do
-  path <- lookupEnv "TMUX_MATE_PATH"
-  case path of
-    Just dhallPath -> do
-      didItWork <- loadTestSession dhallPath
-      case didItWork of
-        Yeah -> exitWith ExitSuccess
-        Nah i -> exitWith (ExitFailure i)
-    Nothing -> do
-      putStrLn "Pass a valid path to TMUX_MATE_PATH pls"
-      exitWith (ExitFailure 1)
+  options' <- execParser (info options fullDesc)
+  didItWork <- loadTestSession (configPath options')
+  case didItWork of
+    Yeah -> exitWith ExitSuccess
+    Nah i -> exitWith (ExitFailure i)
+
+data Options
+  = Options {configPath :: String}
+  deriving (Eq, Ord, Show)
+
+options :: Parser Options
+options = Options <$> argument str (metavar "<path-to-config-file>")

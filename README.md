@@ -16,18 +16,18 @@ git clone https://github.com/danieljharvey/tmux-mate`
 cd tmux-mate
 
 # install tmux-mate using Haskell Stack (install instructions here: https://docs.haskellstack.org/en/stable/install_and_upgrade/)
-# this will put tmux-mate-exe in your path
+# this will put tmux-mate in your path
 stack install
 
-# curse this terrible env var based API for passing config files and run tmux-mate
-export TMUX_MATE_PATH='./samples/Sample1.dhall && tmux-mate-exe
+# run tmux-mate, passing it a path to your dhall config file
+tmux-mate ./samples/Sample1.dhall
 ```
 
 You should now see a `tmux` window running two infinite loops (that will soon wear your battery down, apologies). What if it turns out we need more things in our development environment?
 
 ```bash
 # Run tmux-mate with the second sample script
-export TMUX_MATE_PATH='./samples/Sample2.dhall && tmux-mate-exe
+tmux-mate ./samples/Sample2.dhall
 ```
 
 You will now see your same session with an extra window added. `tmux-mate` has diffed the two sessions and added/removed the changes. This might seem like a useless optimization when running a trivial process like `yes`, but when running multiple build environments this saves loads of time.

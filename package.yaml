@@ -30,7 +30,7 @@ library:
     - dhall
 
 executables:
-  tmux-mate-exe:
+  tmux-mate:
     main: Main.hs
     source-dirs: app
     ghc-options:
@@ -39,6 +39,7 @@ executables:
       - -with-rtsopts=-N
     dependencies:
       - tmux-mate
+      - optparse-applicative
 
 tests:
   tmux-mate-test:
