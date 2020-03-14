@@ -126,3 +126,22 @@ data VWindow
         vWindowPanes :: NonEmpty Pane
       }
   deriving (Eq, Ord, Show, Generic)
+
+-------
+
+data Verbosity
+  = Silent
+  | Chatty
+  deriving
+    (Eq, Ord, Show)
+
+newtype ConfigFilePath
+  = ConfigFilePath {getConfigFilePath :: String}
+  deriving (Eq, Ord, Show)
+
+data CLIOptions
+  = CLIOptions
+      { configFilePath :: ConfigFilePath,
+        verbosity :: Verbosity
+      }
+  deriving (Eq, Ord, Show)

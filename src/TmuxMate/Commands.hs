@@ -69,7 +69,7 @@ quote s = "\"" <> s <> "\""
 
 escape :: String -> String
 escape "" = ""
-escape ('\"':t) = "\\\"" <> escape t
+escape ('\"' : t) = "\\\"" <> escape t
 escape (x : xs) = x : escape xs
 
 quoteAndEscape :: String -> String
