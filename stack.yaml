@@ -43,6 +43,9 @@ extra-deps:
   - dhall-1.29.0
   # newer dhall requires...
   - prettyprinter-1.6.1@sha256:11876ec94a79048e1d2942a99bfaa6f2be5222eafeedac6a9545673a79465009,5459
+  # colourful output!
+  - colourista-0.0.0.0
+  - ansi-terminal-0.10
 
 # Override default flag values for local packages and extra-deps
 # flags: {}

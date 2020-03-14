@@ -18,6 +18,20 @@ packages:
       sha256: b8ddc48e267da0bc8da3082929b478df80c3c986865394f93e7bc7631c0031cf
   original:
     hackage: prettyprinter-1.6.1@sha256:11876ec94a79048e1d2942a99bfaa6f2be5222eafeedac6a9545673a79465009,5459
+- completed:
+    hackage: colourista-0.0.0.0@sha256:700efa51ad616af88fb708e23688935bb5fbdb7bfa5d8f350969a9049554c690,2288
+    pantry-tree:
+      size: 391
+      sha256: 29579ae8520345fe82844fcdfc7a4825ae3e376985bcad1aae3c7ca60247a40f
+  original:
+    hackage: colourista-0.0.0.0
+- completed:
+    hackage: ansi-terminal-0.10@sha256:69d3fc72208f2d8830c18636182e342fabee4859bc091a89a77fe84d5674156b,3224
+    pantry-tree:
+      size: 1461
+      sha256: f1b526e610cb98a75c4c2161c689e85613bba3651ea75a2c110d930a4b47e21e
+  original:
+    hackage: ansi-terminal-0.10
 snapshots:
 - completed:
     size: 524996
