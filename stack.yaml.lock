@@ -19,26 +19,19 @@ packages:
   original:
     hackage: prettyprinter-1.6.1@sha256:11876ec94a79048e1d2942a99bfaa6f2be5222eafeedac6a9545673a79465009,5459
 - completed:
-    size: 12226
-    url: https://github.com/kowainik/colourista/archive/c5fa55155a5915b1055d90ec632eebefb6b239fd.tar.gz
-    cabal-file:
-      size: 2288
-      sha256: 700efa51ad616af88fb708e23688935bb5fbdb7bfa5d8f350969a9049554c690
-    name: colourista
-    version: 0.0.0.0
-    sha256: aa1adf707349841d555d2d7d0db5ddab46fee6edacf6c820f08ac53ff54b5a31
+    hackage: colourista-0.0.0.0@sha256:700efa51ad616af88fb708e23688935bb5fbdb7bfa5d8f350969a9049554c690,2288
     pantry-tree:
-      size: 776
-      sha256: 3dc349353a523e2e7f12a5d08f3666cb70c2cc8c4bc19033509541fed4e680bf
+      size: 391
+      sha256: 29579ae8520345fe82844fcdfc7a4825ae3e376985bcad1aae3c7ca60247a40f
   original:
-    url: https://github.com/kowainik/colourista/archive/c5fa55155a5915b1055d90ec632eebefb6b239fd.tar.gz
+    hackage: colourista-0.0.0.0
 - completed:
-    hackage: ansi-terminal-0.10.3@sha256:e2fbcef5f980dc234c7ad8e2fa433b0e8109132c9e643bc40ea5608cd5697797,3226
+    hackage: ansi-terminal-0.10@sha256:69d3fc72208f2d8830c18636182e342fabee4859bc091a89a77fe84d5674156b,3224
     pantry-tree:
       size: 1461
-      sha256: 02f05d52be3ffcf36c78876629cbab80b63420672685371aea4fd10e1c4aabb6
+      sha256: f1b526e610cb98a75c4c2161c689e85613bba3651ea75a2c110d930a4b47e21e
   original:
-    hackage: ansi-terminal-0.10.3@sha256:e2fbcef5f980dc234c7ad8e2fa433b0e8109132c9e643bc40ea5608cd5697797,3226
+    hackage: ansi-terminal-0.10
 snapshots:
 - completed:
     size: 524996

@@ -44,10 +44,8 @@ extra-deps:
   # newer dhall requires...
   - prettyprinter-1.6.1@sha256:11876ec94a79048e1d2942a99bfaa6f2be5222eafeedac6a9545673a79465009,5459
   # colourful output!
-  - github: kowainik/colourista
-    commit: c5fa55155a5915b1055d90ec632eebefb6b239fd
-  - ansi-terminal-0.10.3@sha256:e2fbcef5f980dc234c7ad8e2fa433b0e8109132c9e643bc40ea5608cd5697797,3226
-
+  - colourista-0.0.0.0
+  - ansi-terminal-0.10
 
 # Override default flag values for local packages and extra-deps
 # flags: {}
