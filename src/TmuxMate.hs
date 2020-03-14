@@ -41,18 +41,18 @@ loadTestSession options = do
   config <- Dhall.inputFile decoder path
   case parseSession config of
     Left e -> do
-      putStrLn $ "Error parsing config at " <> path
-      myLog (show e)
+      myLog Highlight ("Error parsing config at " <> path)
+      myLog Error (show e)
       pure (Nah 1)
     Right config' -> do
       tmuxState <- askTmuxState
-      myLog "Current tmux state"
-      myLog (show tmuxState)
+      myLog Highlight "Current tmux state"
+      myLog Info (show tmuxState)
       let tmuxCommands = getTmuxCommands config' tmuxState
-      myLog "Tmux Commands"
-      _ <- traverse (myLog . show) tmuxCommands
+      myLog Highlight "Tmux Commands"
+      _ <- traverse (myLog Info . show) tmuxCommands
       let commands = getCommands tmuxCommands
-      myLog "Shell commands"
-      _ <- traverse (myLog . show) commands
+      myLog Highlight "Shell commands"
+      _ <- traverse (myLog Info . getCommand) commands
       runCommands commands
       pure Yeah
