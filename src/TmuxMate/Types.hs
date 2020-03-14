@@ -1,6 +1,7 @@
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DerivingStrategies #-}
+{-# LANGUAGE DerivingVia #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
 module TmuxMate.Types where
@@ -103,10 +104,19 @@ instance Show ValidationError where
       <> toList name
       <> "' does not have any panes! All windows must contain at least one pane."
 
+-- helper for nice Show instance
+newtype NicelyPrintedNonEmpty
+  = NicelyPrintedNonEmpty (NonEmpty Char)
+
+instance Show NicelyPrintedNonEmpty where
+  show (NicelyPrintedNonEmpty nec) = toList nec
+
+-- Validated datatypes
+
 newtype VSessionName
   = VSessionName {getVSessionName :: NonEmpty Char}
   deriving stock (Eq, Ord, Generic)
-  deriving newtype (Show)
+  deriving (Show) via NicelyPrintedNonEmpty
 
 data ValidatedSession
   = ValidatedSession
@@ -118,7 +128,7 @@ data ValidatedSession
 newtype VWindowName
   = VWindowName {getVWindowName :: NonEmpty Char}
   deriving stock (Eq, Ord, Generic)
-  deriving newtype (Show)
+  deriving (Show) via NicelyPrintedNonEmpty
 
 data VWindow
   = VWindow
