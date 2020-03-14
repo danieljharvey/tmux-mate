@@ -1,7 +1,11 @@
 module TmuxMate.Validate where
 
+import qualified Data.List as L
 import Data.List.NonEmpty
 import TmuxMate.Types
+
+strip :: String -> String
+strip = L.reverse . L.dropWhile (== '\n') . L.reverse
 
 parseSession :: Session -> Either ValidationError ValidatedSession
 parseSession sesh = do
@@ -14,7 +18,7 @@ parseSession sesh = do
 
 parseSessionName :: SessionName -> Either ValidationError VSessionName
 parseSessionName (SessionName str) =
-  case nonEmpty str of
+  case nonEmpty (strip str) of
     Just neStr -> Right (VSessionName neStr)
     _ -> Left EmptySessionName
 
@@ -27,7 +31,7 @@ parseSessionWindows as = do
 
 parseWindowName :: WindowName -> Either ValidationError VWindowName
 parseWindowName (WindowName str) =
-  case nonEmpty str of
+  case nonEmpty (strip str) of
     Just neStr -> Right (VWindowName neStr)
     _ -> Left EmptyWindowName
 

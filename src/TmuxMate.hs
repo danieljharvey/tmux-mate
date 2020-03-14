@@ -4,12 +4,16 @@
 module TmuxMate
   ( loadTestSession,
     DidItWork (..),
+    CLIOptions (..),
+    ConfigFilePath (..),
+    Verbosity (..),
   )
 where
 
 import qualified Dhall as Dhall
 import System.Process
 import TmuxMate.Commands
+import TmuxMate.Logger
 import TmuxMate.Running
 import TmuxMate.TmuxCommands
 import TmuxMate.Types
@@ -29,23 +33,26 @@ data DidItWork
   = Yeah
   | Nah Int
 
-loadTestSession :: FilePath -> IO DidItWork
-loadTestSession path = do
+loadTestSession :: CLIOptions -> IO DidItWork
+loadTestSession options = do
   let (decoder :: Dhall.Decoder Session) = Dhall.auto
+  let path = getConfigFilePath $ configFilePath options
+      myLog = logger (verbosity options)
   config <- Dhall.inputFile decoder path
   case parseSession config of
     Left e -> do
       putStrLn $ "Error parsing config at " <> path
-      print e
+      myLog (show e)
       pure (Nah 1)
     Right config' -> do
       tmuxState <- askTmuxState
-      -- print tmuxState
+      myLog "Current tmux state"
+      myLog (show tmuxState)
       let tmuxCommands = getTmuxCommands config' tmuxState
-      -- putStrLn "Tmux Commands"
-      -- print tmuxCommands
+      myLog "Tmux Commands"
+      _ <- traverse (myLog . show) tmuxCommands
       let commands = getCommands tmuxCommands
-      -- putStrLn "Shell commands"
-      -- print commands
+      myLog "Shell commands"
+      _ <- traverse (myLog . show) commands
       runCommands commands
       pure Yeah

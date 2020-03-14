@@ -20,6 +20,18 @@ spec = do
             }
       parseSession sesh
         `shouldBe` Left EmptySessionName
+    it "Fails on just a newline" $ do
+      let sesh = Session
+            { sessionTitle = SessionName "\n",
+              sessionWindows =
+                [ Window
+                    { windowTitle = WindowName "OK",
+                      windowPanes = [Pane {paneCommand = PaneCommand ""}]
+                    }
+                ]
+            }
+      parseSession sesh
+        `shouldBe` Left EmptySessionName
     it "Fails with no windows" $ do
       let sesh = Session
             { sessionTitle = SessionName "Whoa",
@@ -33,6 +45,18 @@ spec = do
               sessionWindows =
                 [ Window
                     { windowTitle = WindowName "",
+                      windowPanes = [Pane {paneCommand = PaneCommand ""}]
+                    }
+                ]
+            }
+      parseSession sesh
+        `shouldBe` Left EmptyWindowName
+    it "Fails on a newline" $ do
+      let sesh = Session
+            { sessionTitle = SessionName "Whoa",
+              sessionWindows =
+                [ Window
+                    { windowTitle = WindowName "\n",
                       windowPanes = [Pane {paneCommand = PaneCommand ""}]
                     }
                 ]
