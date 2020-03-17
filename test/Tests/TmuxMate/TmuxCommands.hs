@@ -266,3 +266,12 @@ spec = do
           )
         ]
         `shouldBe` []
+  describe "Attach to session" $ do
+    it "Should attach to session if we're not in one" $ do
+      let sessionName' = VSessionName (NE.fromList "session")
+      attachToSession sessionName' NotInTmuxSession
+        `shouldBe` [AttachToSession sessionName']
+    it "Should not attach to session if we're already in one" $ do
+      let sessionName' = VSessionName (NE.fromList "session")
+      attachToSession sessionName' (InTmuxSession sessionName')
+        `shouldBe` []
