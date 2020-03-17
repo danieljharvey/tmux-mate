@@ -6,6 +6,7 @@ module TmuxMate.TmuxCommands
     createWindow,
     removeWindowPanes,
     removeWindows,
+    attachToSession,
     getTmuxCommands,
   )
 where
@@ -41,7 +42,7 @@ getTmuxCommands sesh tmuxState =
                then removeAdminPane sTitle
                else []
            )
-        <> [AttachToSession sTitle]
+        <> (attachToSession sTitle runningInTmux)
 
 -- create a new session if required
 createSession :: InTmuxSession -> ValidatedSession -> [VSessionName] -> [TmuxCommand]
@@ -206,3 +207,8 @@ removeWindows inTmux seshName running' windows =
 
 removeAdminPane :: VSessionName -> [TmuxCommand]
 removeAdminPane seshName = pure (KillAdminPane seshName)
+
+-- don't attach to session if we're in a session
+attachToSession :: VSessionName -> InTmuxSession -> [TmuxCommand]
+attachToSession _ (InTmuxSession _) = []
+attachToSession sTitle _ = [AttachToSession sTitle]
