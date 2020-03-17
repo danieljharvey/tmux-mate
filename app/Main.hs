@@ -20,7 +20,7 @@ configFilePathParser =
 verbosityParser :: Parser Verbosity
 verbosityParser =
   flag' Chatty (short 'v' <> long "verbose")
-    <|> flag' DryRun (short 't' <> long "dry-run")
+    <|> flag' DryRun (short 'd' <> long "dry-run")
     <|> pure Silent
 
 options :: Parser CLIOptions
