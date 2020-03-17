@@ -50,6 +50,14 @@ A few rules
 - All of the `sessionTitle` and `windowTitle` entries must be non-empty - they are used to manage the sessions internally.
 - The session must contain at least one window, and each window must contain at least one pane.
 
+### Options
+
+Sometimes if what you expect to happen is not happening, pop in the `-v`
+(or `--verbose`) flag to see what `tmux-mate` is thinking.
+
+Alternatively, to see what it's thinking without actually running the commands,
+then instead use `-d` (or `--dry-run`).
+
 ### Requirements
 
 You will need a recent version of `tmux` installed. I tested on version 3, but I'm pretty sure the commands I am using are pretty basic so should work backwards too.
