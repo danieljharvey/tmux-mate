@@ -46,7 +46,7 @@ loadTestSession options = do
       pure (Nah 1)
     Right config' -> do
       case verbosity options of
-        TestRun -> myLog Highlight "Test run mode - will not execute"
+        DryRun -> myLog Highlight "Dry run mode - will not execute"
         _ -> pure ()
       tmuxState <- askTmuxState
       myLog Highlight "Current tmux state"
@@ -58,7 +58,7 @@ loadTestSession options = do
       myLog Highlight "Shell commands"
       _ <- traverse (myLog Info . getCommand) commands
       case verbosity options of
-        TestRun -> pure Yeah
+        DryRun -> pure Yeah
         _ -> do
           runCommands commands
           pure Yeah

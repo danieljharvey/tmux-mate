@@ -27,5 +27,5 @@ outputMsg colour msg =
 logger :: Verbosity -> Colour -> String -> IO ()
 logger _ Error msg = redMessage (T.pack msg)
 logger Silent _ _ = pure ()
-logger TestRun c m = outputMsg c m
+logger DryRun c m = outputMsg c m
 logger Chatty c m = outputMsg c m
