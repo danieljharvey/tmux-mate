@@ -142,6 +142,7 @@ data VWindow
 data Verbosity
   = Silent
   | Chatty
+  | TestRun
   deriving
     (Eq, Ord, Show)
 

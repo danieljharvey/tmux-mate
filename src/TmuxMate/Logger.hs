@@ -17,11 +17,15 @@ data Colour
   | Info
   | Highlight
 
-logger :: Verbosity -> Colour -> String -> IO ()
-logger _ Error msg = redMessage (T.pack msg)
-logger Silent _ _ = pure ()
-logger Chatty colour msg =
+outputMsg :: Colour -> String -> IO ()
+outputMsg colour msg =
   case colour of
     Highlight -> whiteMessage (T.pack msg)
     Error -> redMessage (T.pack msg)
     Info -> magentaMessage (T.pack msg)
+
+logger :: Verbosity -> Colour -> String -> IO ()
+logger _ Error msg = redMessage (T.pack msg)
+logger Silent _ _ = pure ()
+logger TestRun c m = outputMsg c m
+logger Chatty c m = outputMsg c m

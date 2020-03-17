@@ -12,10 +12,18 @@ main = do
     Yeah -> exitWith ExitSuccess
     Nah i -> exitWith (ExitFailure i)
 
+configFilePathParser :: Parser ConfigFilePath
+configFilePathParser =
+  ConfigFilePath
+    <$> argument str (metavar "<path-to-config-file>")
+
+verbosityParser :: Parser Verbosity
+verbosityParser =
+  flag' Chatty (short 'v' <> long "verbose")
+    <|> flag' TestRun (short 't' <> long "test-run")
+    <|> pure Silent
+
 options :: Parser CLIOptions
 options =
   CLIOptions
-    <$> ( ConfigFilePath
-            <$> argument str (metavar "<path-to-config-file>")
-        )
-    <*> flag Silent Chatty (short 'v')
+    <$> configFilePathParser <*> verbosityParser
