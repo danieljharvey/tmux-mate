@@ -27,6 +27,12 @@ data IsNewSession
   = IsNewSession
   | IsOldSession
 
+data PaneArrangement
+  = Horizontal
+  | Vertical
+  | Tiled
+  deriving (Eq, Ord, Show, Generic, FromDhall, ToDhall)
+
 data Session
   = Session
       { sessionTitle :: SessionName,
@@ -37,7 +43,8 @@ data Session
 data Window
   = Window
       { windowTitle :: WindowName,
-        windowPanes :: [Pane]
+        windowPanes :: [Pane],
+        windowArrangement :: PaneArrangement
       }
   deriving (Eq, Ord, Show, Generic, FromDhall, ToDhall)
 
@@ -133,7 +140,8 @@ newtype VWindowName
 data VWindow
   = VWindow
       { vWindowTitle :: VWindowName,
-        vWindowPanes :: NonEmpty Pane
+        vWindowPanes :: NonEmpty Pane,
+        vWindowArrangement :: PaneArrangement
       }
   deriving (Eq, Ord, Show, Generic)
 
@@ -143,8 +151,7 @@ data Verbosity
   = Silent
   | Chatty
   | DryRun
-  deriving
-    (Eq, Ord, Show)
+  deriving (Eq, Ord, Show)
 
 newtype ConfigFilePath
   = ConfigFilePath {getConfigFilePath :: String}
