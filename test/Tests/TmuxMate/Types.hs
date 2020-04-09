@@ -40,8 +40,10 @@ instance Arbitrary PaneArrangement where
   arbitrary =
     oneof
       [ pure (PaneArrangement "tiled"),
-        pure (PaneArrangement "vertical"),
-        pure (PaneArrangement "horizontal")
+        pure (PaneArrangement "even-vertical"),
+        pure (PaneArrangement "even-horizontal"),
+        pure (PaneArrangement "main-vertical"),
+        pure (PaneArrangement "main-horizontal")
       ]
 
 instance Arbitrary WindowName where
