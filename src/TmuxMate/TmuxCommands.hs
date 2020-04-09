@@ -63,6 +63,7 @@ createWindow seshName running' window =
       createWindowPanes
         seshName
         (vWindowTitle window)
+        (vWindowArrangement window)
         (NE.toList $ vWindowPanes window)
         running'
     else
@@ -75,6 +76,7 @@ createWindow seshName running' window =
         <> createWindowPanes
           seshName
           (vWindowTitle window)
+          (vWindowArrangement window)
           (NE.tail $ vWindowPanes window)
           running'
 
@@ -91,12 +93,14 @@ windowExists seshName winName running' =
     > 0
 
 -- create panes we need for a given window
-createWindowPanes :: VSessionName -> VWindowName -> [Pane] -> [Running] -> [TmuxCommand]
-createWindowPanes seshName windowName' panes running' =
+createWindowPanes ::
+  VSessionName -> VWindowName -> VPaneArrangement -> [Pane] -> [Running] -> [TmuxCommand]
+createWindowPanes seshName windowName' arrange panes running' =
   ( \pane ->
       CreatePane
         seshName
         windowName'
+        arrange
         (paneCmdToCmd pane)
   )
     <$> filterPanes

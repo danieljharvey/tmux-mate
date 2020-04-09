@@ -1,5 +1,6 @@
 module TmuxMate.Validate where
 
+import Data.Char (toLower)
 import qualified Data.List as L
 import Data.List.NonEmpty
 import TmuxMate.Types
@@ -11,10 +12,11 @@ parseSession :: Session -> Either ValidationError ValidatedSession
 parseSession sesh = do
   windows <- parseSessionWindows (sessionWindows sesh)
   seshTitle <- parseSessionName (sessionTitle sesh)
-  pure $ ValidatedSession
-    { vSessionTitle = seshTitle,
-      vSessionWindows = windows
-    }
+  pure $
+    ValidatedSession
+      { vSessionTitle = seshTitle,
+        vSessionWindows = windows
+      }
 
 parseSessionName :: SessionName -> Either ValidationError VSessionName
 parseSessionName (SessionName str) =
@@ -45,7 +47,17 @@ parseWindow :: Window -> Either ValidationError VWindow
 parseWindow window = do
   name <- parseWindowName (windowTitle window)
   panes <- parseWindowPanes name (windowPanes window)
-  pure $ VWindow
-    { vWindowTitle = name,
-      vWindowPanes = panes
-    }
+  pure $
+    VWindow
+      { vWindowTitle = name,
+        vWindowPanes = panes,
+        vWindowArrangement = case (fmap toLower)
+          . getPaneArrangement
+          . windowArrangement
+          $ window of
+          "even-horizontal" -> EvenHorizontal
+          "even-vertical" -> EvenVertical
+          "main-horizontal" -> MainHorizontal
+          "main-vertical" -> MainVertical
+          _ -> Tiled
+      }

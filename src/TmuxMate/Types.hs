@@ -27,6 +27,11 @@ data IsNewSession
   = IsNewSession
   | IsOldSession
 
+newtype PaneArrangement
+  = PaneArrangement {getPaneArrangement :: String}
+  deriving stock (Eq, Ord, Generic)
+  deriving newtype (Show, ToDhall, FromDhall)
+
 data Session
   = Session
       { sessionTitle :: SessionName,
@@ -37,7 +42,8 @@ data Session
 data Window
   = Window
       { windowTitle :: WindowName,
-        windowPanes :: [Pane]
+        windowPanes :: [Pane],
+        windowArrangement :: PaneArrangement
       }
   deriving (Eq, Ord, Show, Generic, FromDhall, ToDhall)
 
@@ -65,7 +71,7 @@ newtype WindowName
 data TmuxCommand
   = CreateAdminPane VSessionName
   | KillAdminPane VSessionName
-  | CreatePane VSessionName VWindowName Command
+  | CreatePane VSessionName VWindowName VPaneArrangement Command
   | KillPane VSessionName Int
   | CreateWindow VSessionName VWindowName Command
   | KillWindow VSessionName VWindowName
@@ -118,6 +124,14 @@ newtype VSessionName
   deriving stock (Eq, Ord, Generic)
   deriving (Show) via NicelyPrintedNonEmpty
 
+data VPaneArrangement
+  = EvenHorizontal
+  | EvenVertical
+  | MainHorizontal
+  | MainVertical
+  | Tiled
+  deriving (Eq, Ord, Show, Generic)
+
 data ValidatedSession
   = ValidatedSession
       { vSessionTitle :: VSessionName,
@@ -133,7 +147,8 @@ newtype VWindowName
 data VWindow
   = VWindow
       { vWindowTitle :: VWindowName,
-        vWindowPanes :: NonEmpty Pane
+        vWindowPanes :: NonEmpty Pane,
+        vWindowArrangement :: VPaneArrangement
       }
   deriving (Eq, Ord, Show, Generic)
 
@@ -143,8 +158,7 @@ data Verbosity
   = Silent
   | Chatty
   | DryRun
-  deriving
-    (Eq, Ord, Show)
+  deriving (Eq, Ord, Show)
 
 newtype ConfigFilePath
   = ConfigFilePath {getConfigFilePath :: String}

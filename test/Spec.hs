@@ -1,6 +1,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 
+import Control.Monad (when)
 import qualified Data.List.NonEmpty as NE
 import qualified Data.Text as Text
 import qualified Data.Text.IO as Text.IO
@@ -60,6 +61,12 @@ main = hspec $ do
     it "Generates a Dhall schema that matches our advertised one" $ do
       let schema = (Dhall.Core.pretty (Dhall.expected (Dhall.auto @Session)))
       savedSchema <- Text.IO.readFile "./samples/Schema.dhall"
+      when
+        (Text.stripEnd schema /= Text.stripEnd savedSchema)
+        ( do
+            putStrLn "Generated schema:"
+            Text.IO.putStrLn schema
+        )
       Text.stripEnd schema `shouldBe` Text.stripEnd savedSchema
 
 dhallSessionRoundtrip :: Property

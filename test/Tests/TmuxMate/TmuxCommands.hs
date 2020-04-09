@@ -8,16 +8,18 @@ import TmuxMate.TmuxCommands
 import TmuxMate.Types
 
 sampleSession :: ValidatedSession
-sampleSession = ValidatedSession
-  { vSessionTitle = VSessionName $ NE.fromList "horses",
-    vSessionWindows =
-      NE.fromList
-        [ VWindow
-            { vWindowTitle = VWindowName $ NE.fromList "window",
-              vWindowPanes = undefined
-            }
-        ]
-  }
+sampleSession =
+  ValidatedSession
+    { vSessionTitle = VSessionName $ NE.fromList "horses",
+      vSessionWindows =
+        NE.fromList
+          [ VWindow
+              { vWindowTitle = VWindowName $ NE.fromList "window",
+                vWindowArrangement = Tiled,
+                vWindowPanes = undefined
+              }
+          ]
+    }
 
 spec :: Spec
 spec = do
@@ -45,8 +47,10 @@ spec = do
         (VSessionName $ NE.fromList "horses")
         []
         ( VWindow
-            (VWindowName (NE.fromList "window"))
-            $ NE.fromList [Pane (PaneCommand "go")]
+            { vWindowTitle = VWindowName (NE.fromList "window"),
+              vWindowPanes = NE.fromList [Pane (PaneCommand "go")],
+              vWindowArrangement = Tiled
+            }
         )
         `shouldBe` pure
           ( CreateWindow
@@ -64,8 +68,10 @@ spec = do
             0
         ]
         ( VWindow
-            (VWindowName (NE.fromList "window"))
-            $ NE.fromList [Pane (PaneCommand "go")]
+            { vWindowTitle = VWindowName (NE.fromList "window"),
+              vWindowPanes = NE.fromList [Pane (PaneCommand "go")],
+              vWindowArrangement = Tiled
+            }
         )
         `shouldBe` [ ( CreateWindow
                          (VSessionName $ NE.fromList "horses")
@@ -83,8 +89,10 @@ spec = do
             0
         ]
         ( VWindow
-            (VWindowName (NE.fromList "window"))
-            $ NE.fromList [Pane (PaneCommand "go")]
+            { vWindowTitle = VWindowName (NE.fromList "window"),
+              vWindowPanes = NE.fromList [Pane (PaneCommand "go")],
+              vWindowArrangement = Tiled
+            }
         )
         `shouldBe` []
     it "Adds second pane to existing window" $ do
@@ -97,12 +105,15 @@ spec = do
             0
         ]
         ( VWindow
-            (VWindowName (NE.fromList "window"))
-            $ NE.fromList [Pane (PaneCommand "go"), Pane (PaneCommand "whoa")]
+            { vWindowTitle = VWindowName (NE.fromList "window"),
+              vWindowPanes = NE.fromList [Pane (PaneCommand "go"), Pane (PaneCommand "whoa")],
+              vWindowArrangement = Tiled
+            }
         )
         `shouldBe` [ CreatePane
                        (VSessionName $ NE.fromList "horses")
                        (VWindowName $ NE.fromList "window")
+                       Tiled
                        (Command "whoa")
                    ]
     it "Creates a pane if something matches, but it's in another window" $ do
@@ -120,12 +131,15 @@ spec = do
             0
         ]
         ( VWindow
-            (VWindowName (NE.fromList "window"))
-            $ NE.fromList [Pane (PaneCommand "go")]
+            { vWindowTitle = VWindowName (NE.fromList "window"),
+              vWindowPanes = NE.fromList [Pane (PaneCommand "go")],
+              vWindowArrangement = Tiled
+            }
         )
         `shouldBe` [ CreatePane
                        (VSessionName $ NE.fromList "horses")
                        (VWindowName $ NE.fromList "window")
+                       Tiled
                        (Command "go")
                    ]
     it "Ignores panes that already exist" $ do
@@ -143,8 +157,10 @@ spec = do
             0
         ]
         ( VWindow
-            (VWindowName (NE.fromList "window"))
-            $ NE.fromList [Pane (PaneCommand "go"), Pane (PaneCommand "yo")]
+            { vWindowTitle = VWindowName (NE.fromList "window"),
+              vWindowPanes = NE.fromList [Pane (PaneCommand "go"), Pane (PaneCommand "yo")],
+              vWindowArrangement = Tiled
+            }
         )
         `shouldBe` []
   describe "removeWindowPanes" $ do
@@ -154,8 +170,10 @@ spec = do
         (VSessionName (NE.fromList "horses"))
         []
         [ ( VWindow
-              (VWindowName (NE.fromList "window"))
-              $ NE.fromList [Pane (PaneCommand "go")]
+              { vWindowTitle = VWindowName (NE.fromList "window"),
+                vWindowPanes = NE.fromList [Pane (PaneCommand "go")],
+                vWindowArrangement = Tiled
+              }
           )
         ]
         `shouldBe` []
@@ -170,8 +188,10 @@ spec = do
             0
         ]
         [ ( VWindow
-              (VWindowName (NE.fromList "window"))
-              $ NE.fromList [Pane (PaneCommand "go")]
+              { vWindowTitle = VWindowName (NE.fromList "window"),
+                vWindowPanes = NE.fromList [Pane (PaneCommand "go")],
+                vWindowArrangement = Tiled
+              }
           )
         ]
         `shouldBe` []
@@ -186,8 +206,10 @@ spec = do
             24
         ]
         [ ( VWindow
-              (VWindowName (NE.fromList "window"))
-              $ NE.fromList [Pane (PaneCommand "whoa-no")]
+              { vWindowTitle = VWindowName (NE.fromList "window"),
+                vWindowPanes = NE.fromList [Pane (PaneCommand "whoa-no")],
+                vWindowArrangement = Tiled
+              }
           )
         ]
         `shouldBe` [KillPane (VSessionName (NE.fromList "horses")) 24]
@@ -207,8 +229,10 @@ spec = do
             24
         ]
         [ ( VWindow
-              (VWindowName (NE.fromList "window"))
-              $ NE.fromList [Pane (PaneCommand "whoa-no")]
+              { vWindowTitle = VWindowName (NE.fromList "window"),
+                vWindowPanes = NE.fromList [Pane (PaneCommand "whoa-no")],
+                vWindowArrangement = Tiled
+              }
           )
         ]
         `shouldBe` [KillPane (VSessionName (NE.fromList "horses")) 24]
@@ -219,8 +243,10 @@ spec = do
         (VSessionName (NE.fromList "horses"))
         []
         [ ( VWindow
-              (VWindowName (NE.fromList "window"))
-              $ NE.fromList [Pane (PaneCommand "go")]
+              { vWindowTitle = VWindowName (NE.fromList "window"),
+                vWindowPanes = NE.fromList [Pane (PaneCommand "go")],
+                vWindowArrangement = Tiled
+              }
           )
         ]
         `shouldBe` []
@@ -235,9 +261,12 @@ spec = do
             10
         ]
         [ ( VWindow
-              (VWindowName (NE.fromList "window"))
-              $ NE.fromList
-                [Pane (PaneCommand "go")]
+              { vWindowTitle = VWindowName (NE.fromList "window"),
+                vWindowPanes =
+                  NE.fromList
+                    [Pane (PaneCommand "go")],
+                vWindowArrangement = Tiled
+              }
           )
         ]
         `shouldBe` [ KillWindow
@@ -260,9 +289,12 @@ spec = do
             10
         ]
         [ ( VWindow
-              (VWindowName (NE.fromList "window"))
-              $ NE.fromList
-                [Pane (PaneCommand "go")]
+              { vWindowTitle = VWindowName (NE.fromList "window"),
+                vWindowPanes =
+                  NE.fromList
+                    [Pane (PaneCommand "go")],
+                vWindowArrangement = Tiled
+              }
           )
         ]
         `shouldBe` []

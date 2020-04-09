@@ -9,64 +9,84 @@ spec :: Spec
 spec = do
   describe "Validating Session to VSession" $ do
     it "Fails on an empty name" $ do
-      let sesh = Session
-            { sessionTitle = SessionName "",
-              sessionWindows =
-                [ Window
-                    { windowTitle = WindowName "OK",
-                      windowPanes = [Pane {paneCommand = PaneCommand ""}]
-                    }
-                ]
-            }
+      let sesh =
+            Session
+              { sessionTitle = SessionName "",
+                sessionWindows =
+                  [ Window
+                      { windowTitle = WindowName "OK",
+                        windowPanes = [Pane {paneCommand = PaneCommand ""}],
+                        windowArrangement = PaneArrangement "Tiled"
+                      }
+                  ]
+              }
       parseSession sesh
         `shouldBe` Left EmptySessionName
     it "Fails on just a newline" $ do
-      let sesh = Session
-            { sessionTitle = SessionName "\n",
-              sessionWindows =
-                [ Window
-                    { windowTitle = WindowName "OK",
-                      windowPanes = [Pane {paneCommand = PaneCommand ""}]
-                    }
-                ]
-            }
+      let sesh =
+            Session
+              { sessionTitle = SessionName "\n",
+                sessionWindows =
+                  [ Window
+                      { windowTitle = WindowName "OK",
+                        windowPanes = [Pane {paneCommand = PaneCommand ""}],
+                        windowArrangement = PaneArrangement "Tiled"
+                      }
+                  ]
+              }
       parseSession sesh
         `shouldBe` Left EmptySessionName
     it "Fails with no windows" $ do
-      let sesh = Session
-            { sessionTitle = SessionName "Whoa",
-              sessionWindows = []
-            }
+      let sesh =
+            Session
+              { sessionTitle = SessionName "Whoa",
+                sessionWindows = []
+              }
       parseSession sesh
         `shouldBe` Left NoWindows
     it "Fails with empty window name" $ do
-      let sesh = Session
-            { sessionTitle = SessionName "Whoa",
-              sessionWindows =
-                [ Window
-                    { windowTitle = WindowName "",
-                      windowPanes = [Pane {paneCommand = PaneCommand ""}]
-                    }
-                ]
-            }
+      let sesh =
+            Session
+              { sessionTitle = SessionName "Whoa",
+                sessionWindows =
+                  [ Window
+                      { windowTitle = WindowName "",
+                        windowPanes = [Pane {paneCommand = PaneCommand ""}],
+                        windowArrangement = PaneArrangement "Tiled"
+                      }
+                  ]
+              }
       parseSession sesh
         `shouldBe` Left EmptyWindowName
     it "Fails on a newline" $ do
-      let sesh = Session
-            { sessionTitle = SessionName "Whoa",
-              sessionWindows =
-                [ Window
-                    { windowTitle = WindowName "\n",
-                      windowPanes = [Pane {paneCommand = PaneCommand ""}]
-                    }
-                ]
-            }
+      let sesh =
+            Session
+              { sessionTitle = SessionName "Whoa",
+                sessionWindows =
+                  [ Window
+                      { windowTitle = WindowName "\n",
+                        windowPanes = [Pane {paneCommand = PaneCommand ""}],
+                        windowArrangement = PaneArrangement "Tiled"
+                      }
+                  ]
+              }
       parseSession sesh
         `shouldBe` Left EmptyWindowName
     it "Fails with no window panes" $ do
-      let sesh = Session
-            { sessionTitle = SessionName "Whoa",
-              sessionWindows = [Window {windowTitle = WindowName "empty-boy", windowPanes = []}]
-            }
+      let sesh =
+            Session
+              { sessionTitle = SessionName "Whoa",
+                sessionWindows =
+                  [ Window
+                      { windowTitle =
+                          WindowName "empty-boy",
+                        windowPanes = [],
+                        windowArrangement = PaneArrangement "Tiled"
+                      }
+                  ]
+              }
       parseSession sesh
-        `shouldBe` Left (WindowWithNoPanes (VWindowName $ NE.fromList "empty-boy"))
+        `shouldBe` Left
+          ( WindowWithNoPanes
+              (VWindowName $ NE.fromList "empty-boy")
+          )
