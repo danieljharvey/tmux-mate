@@ -38,7 +38,7 @@ loadTestSession options = do
   let (decoder :: Dhall.Decoder Session) = Dhall.auto
   let path = getConfigFilePath $ configFilePath options
       myLog = logger (verbosity options)
-  config <- Dhall.inputFile decoder path
+  config <- Dhall.detailed (Dhall.inputFile decoder path)
   case parseSession config of
     Left e -> do
       myLog Highlight ("Error parsing config at " <> path)
