@@ -63,7 +63,10 @@ main = hspec $ do
       savedSchema <- Text.IO.readFile "./samples/Schema.dhall"
       when
         (Text.stripEnd schema /= Text.stripEnd savedSchema)
-        (Text.IO.putStrLn schema)
+        ( do
+            putStrLn "Generated schema:"
+            Text.IO.putStrLn schema
+        )
       Text.stripEnd schema `shouldBe` Text.stripEnd savedSchema
 
 dhallSessionRoundtrip :: Property
