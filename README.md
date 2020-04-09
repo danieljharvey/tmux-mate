@@ -68,6 +68,13 @@ then instead use `-d` (or `--dry-run`).
 
 You will need a recent version of `tmux` installed. I tested on version 3, but I'm pretty sure the commands I am using are pretty basic so should work backwards too.
 
+### Development
+
+Run `stack install` to install `tmux-mate` and then run `tmux-mate
+development.dhall` to launch an environment with everything you need.
+
+If `ghcid` is missing, add it with `stack install ghcid`.
+
 ### Prior art
 
 Very much inspired by [Tmuxinator](https://github.com/tmuxinator/tmuxinator), a
