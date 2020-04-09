@@ -55,7 +55,9 @@ parseWindow window = do
           . getPaneArrangement
           . windowArrangement
           $ window of
-          "horizontal" -> Horizontal
-          "vertical" -> Vertical
+          "even-horizontal" -> EvenHorizontal
+          "even-vertical" -> EvenVertical
+          "main-horizontal" -> MainHorizontal
+          "main-vertical" -> MainVertical
           _ -> Tiled
       }

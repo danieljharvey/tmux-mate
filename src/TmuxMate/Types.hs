@@ -71,7 +71,7 @@ newtype WindowName
 data TmuxCommand
   = CreateAdminPane VSessionName
   | KillAdminPane VSessionName
-  | CreatePane VSessionName VWindowName Command
+  | CreatePane VSessionName VWindowName VPaneArrangement Command
   | KillPane VSessionName Int
   | CreateWindow VSessionName VWindowName Command
   | KillWindow VSessionName VWindowName
@@ -125,8 +125,10 @@ newtype VSessionName
   deriving (Show) via NicelyPrintedNonEmpty
 
 data VPaneArrangement
-  = Horizontal
-  | Vertical
+  = EvenHorizontal
+  | EvenVertical
+  | MainHorizontal
+  | MainVertical
   | Tiled
   deriving (Eq, Ord, Show, Generic)
 

@@ -38,10 +38,12 @@ This project uses [Dhall](https://dhall-lang.org/) files for configuration. Ther
 
 ```
 { sessionTitle : Text
-, sessionWindows : List
-  { windowTitle : Text
-  , windowPanes : List { paneCommand : Text }
-  }
+, sessionWindows :
+    List
+      { windowTitle : Text
+      , windowPanes : List { paneCommand : Text }
+      , windowArrangement : Text
+      }
 }
 ```
 
@@ -49,6 +51,10 @@ A few rules
 
 - All of the `sessionTitle` and `windowTitle` entries must be non-empty - they are used to manage the sessions internally.
 - The session must contain at least one window, and each window must contain at least one pane.
+- `windowArrangement` is one of `tmux`'s options `tiled`, `even-horizontal`,
+  `even-vertical`, `main-horizontal` and `main-vertical`. Info on what those
+mean in the [man page](http://man7.org/linux/man-pages/man1/tmux.1.html) -
+search for `select-layout` for info.
 
 ### Options
 

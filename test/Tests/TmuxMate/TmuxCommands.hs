@@ -113,6 +113,7 @@ spec = do
         `shouldBe` [ CreatePane
                        (VSessionName $ NE.fromList "horses")
                        (VWindowName $ NE.fromList "window")
+                       Tiled
                        (Command "whoa")
                    ]
     it "Creates a pane if something matches, but it's in another window" $ do
@@ -138,6 +139,7 @@ spec = do
         `shouldBe` [ CreatePane
                        (VSessionName $ NE.fromList "horses")
                        (VWindowName $ NE.fromList "window")
+                       Tiled
                        (Command "go")
                    ]
     it "Ignores panes that already exist" $ do

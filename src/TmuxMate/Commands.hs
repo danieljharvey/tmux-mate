@@ -23,13 +23,16 @@ createActualCommand (KillAdminPane seshName) =
   [ Command $ "tmux select-window -t " <> adminPaneName,
     sendKeys seshName "exit"
   ]
-createActualCommand (CreatePane _ (VWindowName winName) newCmd) =
-  [ Command $ "tmux select-window -t " <> (quoteAndEscape . NE.toList) winName,
-    Command $
-      "tmux split-window "
-        <> (quoteAndEscape . getCommand) newCmd,
-    Command $ "tmux select-layout even-horizontal" -- for now let's stop it filling up
-  ]
+createActualCommand (CreatePane _ (VWindowName winName) arrangement newCmd) =
+  let windowName' = (quoteAndEscape . NE.toList) winName
+   in [ Command $ "tmux select-window -t " <> windowName',
+        Command $
+          "tmux split-window "
+            <> (quoteAndEscape . getCommand) newCmd,
+        Command $
+          "tmux select-layout -t " <> windowName' <> " "
+            <> (showPaneArrangement arrangement)
+      ]
 createActualCommand (KillPane seshName paneIndex) =
   pure $
     sendKeys
@@ -63,6 +66,13 @@ createActualCommand (KillWindow _ (VWindowName winName)) =
       "tmux kill-window -t "
         <> (quoteAndEscape . NE.toList) winName
   ]
+
+showPaneArrangement :: VPaneArrangement -> String
+showPaneArrangement Tiled = "tiled"
+showPaneArrangement EvenHorizontal = "even-horizontal"
+showPaneArrangement EvenVertical = "even-vertical"
+showPaneArrangement MainHorizontal = "main-horizontal"
+showPaneArrangement MainVertical = "main-vertical"
 
 quote :: String -> String
 quote s = "\"" <> s <> "\""
