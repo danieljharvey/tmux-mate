@@ -29,6 +29,8 @@ library:
     - text
     - dhall
     - colourista
+    - directory
+    - filepath
 
 executables:
   tmux-mate:

@@ -11,6 +11,7 @@ module TmuxMate
 where
 
 import qualified Dhall as Dhall
+import System.Directory
 import System.Process
 import TmuxMate.Commands
 import TmuxMate.Logger
@@ -39,6 +40,8 @@ loadTestSession options = do
   let path = getConfigFilePath $ configFilePath options
       myLog = logger (verbosity options)
   config <- Dhall.detailed (Dhall.inputFile decoder path)
+  relativePath <- makeRelativeToCurrentDirectory path
+  print relativePath
   case parseSession config of
     Left e -> do
       myLog Highlight ("Error parsing config at " <> path)
