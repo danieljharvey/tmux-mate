@@ -1,5 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
-
 module Tests.TmuxMate.Validate where
 
 import qualified Data.List.NonEmpty as NE
