@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Tests.TmuxMate.Validate where
 
 import qualified Data.List.NonEmpty as NE
@@ -16,7 +18,7 @@ spec = do
                   [ Window
                       { windowTitle = WindowName "OK",
                         windowPanes = [Pane {paneCommand = PaneCommand ""}],
-                        windowArrangement = Tiled
+                        windowArrangement = PaneArrangement "Tiled"
                       }
                   ]
               }
@@ -30,7 +32,7 @@ spec = do
                   [ Window
                       { windowTitle = WindowName "OK",
                         windowPanes = [Pane {paneCommand = PaneCommand ""}],
-                        windowArrangement = Tiled
+                        windowArrangement = PaneArrangement "Tiled"
                       }
                   ]
               }
@@ -52,7 +54,7 @@ spec = do
                   [ Window
                       { windowTitle = WindowName "",
                         windowPanes = [Pane {paneCommand = PaneCommand ""}],
-                        windowArrangement = Tiled
+                        windowArrangement = PaneArrangement "Tiled"
                       }
                   ]
               }
@@ -66,7 +68,7 @@ spec = do
                   [ Window
                       { windowTitle = WindowName "\n",
                         windowPanes = [Pane {paneCommand = PaneCommand ""}],
-                        windowArrangement = Tiled
+                        windowArrangement = PaneArrangement "Tiled"
                       }
                   ]
               }
@@ -81,7 +83,7 @@ spec = do
                       { windowTitle =
                           WindowName "empty-boy",
                         windowPanes = [],
-                        windowArrangement = Tiled
+                        windowArrangement = PaneArrangement "Tiled"
                       }
                   ]
               }

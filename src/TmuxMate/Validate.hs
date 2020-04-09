@@ -1,5 +1,6 @@
 module TmuxMate.Validate where
 
+import Data.Char (toLower)
 import qualified Data.List as L
 import Data.List.NonEmpty
 import TmuxMate.Types
@@ -50,5 +51,11 @@ parseWindow window = do
     VWindow
       { vWindowTitle = name,
         vWindowPanes = panes,
-        vWindowArrangement = windowArrangement window
+        vWindowArrangement = case (fmap toLower)
+          . getPaneArrangement
+          . windowArrangement
+          $ window of
+          "horizontal" -> Horizontal
+          "vertical" -> Vertical
+          _ -> Tiled
       }

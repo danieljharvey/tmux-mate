@@ -59,6 +59,7 @@ main = hspec $ do
       property dhallSessionRoundtrip
     it "Generates a Dhall schema that matches our advertised one" $ do
       let schema = (Dhall.Core.pretty (Dhall.expected (Dhall.auto @Session)))
+      Text.IO.putStrLn schema
       savedSchema <- Text.IO.readFile "./samples/Schema.dhall"
       Text.stripEnd schema `shouldBe` Text.stripEnd savedSchema
 

@@ -27,11 +27,10 @@ data IsNewSession
   = IsNewSession
   | IsOldSession
 
-data PaneArrangement
-  = Horizontal
-  | Vertical
-  | Tiled
-  deriving (Eq, Ord, Show, Generic, FromDhall, ToDhall)
+newtype PaneArrangement
+  = PaneArrangement {getPaneArrangement :: String}
+  deriving stock (Eq, Ord, Generic)
+  deriving newtype (Show, ToDhall, FromDhall)
 
 data Session
   = Session
@@ -125,6 +124,12 @@ newtype VSessionName
   deriving stock (Eq, Ord, Generic)
   deriving (Show) via NicelyPrintedNonEmpty
 
+data VPaneArrangement
+  = Horizontal
+  | Vertical
+  | Tiled
+  deriving (Eq, Ord, Show, Generic)
+
 data ValidatedSession
   = ValidatedSession
       { vSessionTitle :: VSessionName,
@@ -141,7 +146,7 @@ data VWindow
   = VWindow
       { vWindowTitle :: VWindowName,
         vWindowPanes :: NonEmpty Pane,
-        vWindowArrangement :: PaneArrangement
+        vWindowArrangement :: VPaneArrangement
       }
   deriving (Eq, Ord, Show, Generic)
 

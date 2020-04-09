@@ -33,8 +33,16 @@ instance Arbitrary Session where
 instance Arbitrary Window where
   arbitrary = genericArbitrary
 
-instance Arbitrary PaneArrangement where
+instance Arbitrary VPaneArrangement where
   arbitrary = genericArbitrary
+
+instance Arbitrary PaneArrangement where
+  arbitrary =
+    oneof
+      [ pure (PaneArrangement "tiled"),
+        pure (PaneArrangement "vertical"),
+        pure (PaneArrangement "horizontal")
+      ]
 
 instance Arbitrary WindowName where
   arbitrary = oneof [pure (WindowName "window-name")]
