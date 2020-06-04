@@ -6,28 +6,39 @@ Manage your tmux sessions with the delicious power of Dhall.
 
 Working on modern microservice architectures usually means spinning up various combinations of 5 or more different services. Remembering what they are is a totally `1x` use of your time, let's automate it!
 
-### Getting started
+### Installation
+
+#### MacOS
 
 ```bash
-# clone this repo
-git clone https://github.com/danieljharvey/tmux-mate`
+brew update && brew install danieljharvey/tools/tmux-mate
+```
 
-# enter the blessed folder
-cd tmux-mate
+#### Ubuntu 
 
-# install tmux-mate using Haskell Stack (install instructions here: https://docs.haskellstack.org/en/stable/install_and_upgrade/)
-# this will put tmux-mate in your path
-stack install
+Binaries available on the [releases](https://github.com/danieljharvey/tmux-mate/releases) page.
 
-# run tmux-mate, passing it a path to your dhall config file
-tmux-mate ./samples/Sample1.dhall
+### Tutorial
+
+Let's grab a couple of sample config files...
+
+```bash
+curl https://raw.githubusercontent.com/danieljharvey/tmux-mate/master/samples/Sample1.dhall > Sample1.dhall
+curl https://raw.githubusercontent.com/danieljharvey/tmux-mate/master/samples/Sample2.dhall > Sample2.dhall
+```
+
+Let's open the first config file in `tmux-mate`.
+
+```
+# Run tmux-mate with the first sample script
+tmux-mate ./Sample1.dhall
 ```
 
 You should now see a `tmux` window running two infinite loops (that will soon wear your battery down, apologies). What if it turns out we need more things in our development environment?
 
 ```bash
 # Run tmux-mate with the second sample script
-tmux-mate ./samples/Sample2.dhall
+tmux-mate ./Sample2.dhall
 ```
 
 You will now see your same session with an extra window added. `tmux-mate` has diffed the two sessions and added/removed the changes. This might seem like a useless optimization when running a trivial process like `yes`, but when running multiple build environments this saves loads of time.
