@@ -18,10 +18,12 @@ main = do
         Yeah -> exitWith ExitSuccess
         Nah i -> exitWith (ExitFailure i)
 
-configFilePathParser :: Opt.Parser ConfigFilePath
+configFilePathParser :: Opt.Parser (Maybe ConfigFilePath)
 configFilePathParser =
-  ConfigFilePath
-    <$> Opt.argument Opt.str (Opt.metavar "<path-to-config-file>")
+  ( Just <$> ConfigFilePath
+      <$> Opt.argument Opt.str (Opt.metavar "<path-to-config-file>")
+  )
+    <|> pure Nothing
 
 verbosityParser :: Opt.Parser Verbosity
 verbosityParser =
