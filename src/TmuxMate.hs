@@ -5,14 +5,17 @@ module TmuxMate
   ( loadTestSession,
     DidItWork (..),
     CLIOptions (..),
+    CLICommand (..),
     ConfigFilePath (..),
     Verbosity (..),
+    createTmuxMateDhall,
   )
 where
 
 import qualified Dhall as Dhall
 import System.Process
 import TmuxMate.Commands
+import TmuxMate.Init
 import TmuxMate.Logger
 import TmuxMate.Running
 import TmuxMate.TmuxCommands
