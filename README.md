@@ -18,6 +18,15 @@ brew update && brew install danieljharvey/tools/tmux-mate
 
 Binaries available on the [releases](https://github.com/danieljharvey/tmux-mate/releases) page.
 
+### Getting started
+
+```bash
+# create a default tmux-mate.dhall
+tmux-mate init
+# Start running everything
+tmux-mate start
+```
+
 ### Tutorial
 
 Let's grab a couple of sample config files...
