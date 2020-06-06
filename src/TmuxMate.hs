@@ -7,12 +7,15 @@ module TmuxMate
     CLIOptions (..),
     ConfigFilePath (..),
     Verbosity (..),
+    createTmuxMateDhall,
   )
 where
 
+import Data.Maybe (fromMaybe)
 import qualified Dhall as Dhall
 import System.Process
 import TmuxMate.Commands
+import TmuxMate.Init
 import TmuxMate.Logger
 import TmuxMate.Running
 import TmuxMate.TmuxCommands
@@ -36,7 +39,7 @@ data DidItWork
 loadTestSession :: CLIOptions -> IO DidItWork
 loadTestSession options = do
   let (decoder :: Dhall.Decoder Session) = Dhall.auto
-  let path = getConfigFilePath $ configFilePath options
+  let path = fromMaybe "tmux-mate.dhall" (getConfigFilePath <$> configFilePath options)
       myLog = logger (verbosity options)
   config <- Dhall.detailed (Dhall.inputFile decoder path)
   case parseSession config of

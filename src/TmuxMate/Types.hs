@@ -166,7 +166,7 @@ newtype ConfigFilePath
 
 data CLIOptions
   = CLIOptions
-      { configFilePath :: ConfigFilePath,
+      { configFilePath :: Maybe ConfigFilePath,
         verbosity :: Verbosity
       }
   deriving (Eq, Ord, Show)
