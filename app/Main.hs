@@ -1,6 +1,7 @@
 module Main where
 
-import Options.Applicative ((<|>))
+import CLICommands
+import Options (command)
 import qualified Options.Applicative as Opt
 import System.Exit
 import TmuxMate
@@ -17,37 +18,3 @@ main = do
       case didItWork of
         Yeah -> exitWith ExitSuccess
         Nah i -> exitWith (ExitFailure i)
-
-configFilePathParser :: Opt.Parser (Maybe ConfigFilePath)
-configFilePathParser =
-  ( Just <$> ConfigFilePath
-      <$> Opt.argument Opt.str (Opt.metavar "<path-to-config-file>")
-  )
-    <|> pure Nothing
-
-verbosityParser :: Opt.Parser Verbosity
-verbosityParser =
-  Opt.flag' Chatty (Opt.short 'v' <> Opt.long "verbose")
-    <|> Opt.flag' DryRun (Opt.short 'd' <> Opt.long "dry-run")
-    <|> pure Silent
-
-options :: Opt.Parser CLIOptions
-options =
-  CLIOptions
-    <$> configFilePathParser <*> verbosityParser
-
-command :: Opt.Parser CLICommand
-command =
-  otherCommands
-    <|> (CLIRun <$> options)
-
-otherCommands :: Opt.Parser CLICommand
-otherCommands =
-  Opt.subparser
-    ( Opt.command
-        "init"
-        ( Opt.info
-            (pure CLIInit)
-            (Opt.progDesc "Initialise a new tmux-mate.dhall file")
-        )
-    )

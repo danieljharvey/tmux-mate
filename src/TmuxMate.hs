@@ -5,7 +5,6 @@ module TmuxMate
   ( loadTestSession,
     DidItWork (..),
     CLIOptions (..),
-    CLICommand (..),
     ConfigFilePath (..),
     Verbosity (..),
     createTmuxMateDhall,

@@ -164,10 +164,6 @@ newtype ConfigFilePath
   = ConfigFilePath {getConfigFilePath :: String}
   deriving (Eq, Ord, Show)
 
-data CLICommand
-  = CLIRun CLIOptions
-  | CLIInit
-
 data CLIOptions
   = CLIOptions
       { configFilePath :: Maybe ConfigFilePath,
