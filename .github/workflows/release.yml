@@ -1,0 +1,115 @@
+name: New release
+on:
+  push:
+    tags:
+      - v[0-9]*
+
+jobs:
+  build:
+    name: Build
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-18.04, macos-latest]
+
+    steps:
+      - name: Clone project
+        uses: actions/checkout@v2
+
+      - name: Cache stack global package db
+        id:   stack-global
+        uses: actions/cache@v2
+        with:
+          path: ~/.stack
+          key: ${{ runner.os }}-stack-global-${{ matrix.plan.ghc }}-${{ hashFiles('**.yaml') }}
+          restore-keys: |
+               ${{ runner.os }}-stack-global-${{ matrix.plan.ghc }}
+
+      - name: Cache stack-installed programs in ~/.local/bin
+        id:   stack-programs
+        uses: actions/cache@v2
+        with:
+          path: ~/.local/bin
+          key: ${{ runner.os }}-stack-programs-${{ matrix.plan.ghc }}-${{ hashFiles('**.yaml') }}
+          restore-keys: |
+               ${{ runner.os }}-stack-programs-${{ matrix.plan.ghc }}
+
+      - name: Cache .stack-work
+        uses: actions/cache@v2
+        with:
+          path: .stack-work
+          key: ${{ runner.os }}-stack-work-${{ matrix.plan.ghc }}-${{ hashFiles('**.yaml') }}
+          restore-keys: |
+               ${{ runner.os }}-stack-work-${{ matrix.plan.ghc }}
+
+        # Fetch all history so git describe works
+      - run: |
+          git fetch --prune --unshallow
+
+      - name: Build compiler and generate zip
+        run: "stack build"
+
+      - name: Install binary
+        run: "stack install"
+
+      - name: Output binary file 
+        run: echo "BINARY_PATH=$(stack path --local-install-root)/bin/tmux-mate" >> $GITHUB_ENV
+      
+      - name: Upload dist directory artifacts
+        uses: actions/upload-artifact@v1
+        with:
+          name: dist-${{ runner.os }}
+          path: ${{ env.BINARY_PATH }}
+
+  release:
+    name: Create Github Release
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Determine version
+      id: version
+      run: "echo ::set-output name=version::${GITHUB_REF:11}"
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1.0.0
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: true
+        prerelease: false
+     
+    - name: Fetch macOS build
+      uses: actions/download-artifact@v1
+      with:
+        name: dist-macOS
+        path: macOS-bin
+
+    - name: Fetch linux build
+      uses: actions/download-artifact@v1
+      with:
+        name: dist-linux
+        path: linux-bin
+
+    - name: Upload macOS build
+      uses: actions/upload-release-asset@v1.0.1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: macOS-bin/tmux-mate
+        asset_name: tmux-mate-${{ steps.version.outputs.version }}-osx
+        asset_content_type: application/zip
+
+    - name: Upload linux build
+      uses: actions/upload-release-asset@v1.0.1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: linux-bin/tmux-mate
+        asset_name: tmux-mate-${{ steps.version.outputs.version }}-linux
+        asset_content_type: application/zip
